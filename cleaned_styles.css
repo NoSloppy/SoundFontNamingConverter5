@@ -1,0 +1,371 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  background: #222831;
+  color: #e2e2e2;
+}
+h1 {
+  text-align: center;
+  font-size: 2.4em;
+  letter-spacing: 0.04em;
+  margin-top: 0.9em;
+  color: #29a19c;
+  font-weight: bold;
+  text-shadow: 0 2px 7px #000, 0 1px 0 #222, 1px 0 2px #212;
+}
+form {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 1em;
+  margin-bottom: 2em;
+}
+select, input[type="checkbox"], input[type="file"], button {
+  font-size: 1.1em;
+  padding: 0.45em 0.85em;
+  border-radius: 0.3em;
+  border: none;
+  outline: none;
+  margin-right: 0.7em;
+  margin-bottom: 0.2em;
+  background: #31363b;
+  color: #f6f6f6;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.09);
+  transition: background 0.2s;
+}
+select:focus, input[type="file"]:focus {
+  background: #3a3f47;
+  border: 1.5px solid #29a19c;
+}
+label, .optimize-label {
+  font-size: 1.04em;
+  color: #aaa;
+  margin-right: 1em;
+}
+input[type="checkbox"] {
+  width: 1.1em;
+  height: 1.1em;
+  accent-color: #29a19c;
+  margin-right: 0.45em;
+  vertical-align: middle;
+}
+button {
+  background: #29a19c;
+  color: #000;
+  cursor: pointer;
+  font-weight: 600;
+  border: none;
+  transition: background 0.23s, color 0.23s;
+  box-shadow: 0 1px 3px #191e23c9;
+  padding: 0.52em 1.35em;
+  margin-top: 1.2em;
+}
+button:hover:enabled {
+  background: #2fd4c4;
+  color: #fff;
+}
+button:disabled {
+  opacity: 0.6;
+  background: #444;
+  color: #999;
+  cursor: not-allowed;
+}
+
+/* Version Popup container styling */
+.popup {
+  position: fixed;
+  top: 6em;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #202020;
+  color: #FFFFFF;
+  padding: 20px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+  border-radius: 8px;
+  z-index: 1000;
+  transition: opacity 0.25s ease-in-out;
+  width: 90vw;
+  height: 80vh;
+  bottom: 50px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  box-sizing: border-box;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+}
+.popup.show {
+  display: flex;
+  opacity: 1;
+}
+.hidden {
+    display: none;
+}
+.popup.show {
+    display: block;
+}
+/* Style for the Version Changelog close button */
+.popup .close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: red;
+  color: #fff;
+  border: none;
+  border-radius: 0.2em;
+  width: 1.5em;
+  height: 1.5em;
+  font-size: 1em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 101;
+}
+.popup .close-button:hover {
+  background-color: darkred;
+}
+
+p.select-label {
+  text-align: center;
+  margin-bottom: 0.7em;
+}
+.files-chooser-row {
+display: flex;
+justify-content: center;
+align-items: center;
+}
+.file-input {
+margin-bottom: 0.5em;
+}
+.multiple-fonts-row {
+display: flex;
+justify-content: center;
+align-items: center;
+margin-bottom: 0.7em;
+}
+.multiple-fonts-checkbox {
+margin-right: 0.4em;
+}
+.multiple-fonts-label {
+color: #aaa;
+font-size: 1.04em;
+}
+.multiple-fonts-desc {
+font-size: 0.92em;
+color: #aaa;
+}
+.rename-highpass-row {
+display: flex;
+justify-content: center;
+align-items: center;
+margin-bottom: 0.7em;
+}
+.rename-highpass-label {
+color: #aaa;
+font-size: 1.04em;
+}
+.rename-highpass-checkbox {
+margin-right: 0.4em;
+}
+.rename-button-row {
+display: flex;
+justify-content: center;
+}
+
+#log {
+  margin-top: 1.5em;
+  margin-left: auto;
+  margin-right: auto;
+  min-width: 50vw;            /* Default minimum width */
+  width: fit-content;         /* Grow to fit content */
+  max-width: 95vw;            /* up to 95% of window */
+  font-family: 'Fira Mono', 'Consolas', monospace;
+  font-size: 1.04em;
+  background: #23272b;
+  padding: 1.1em 1.5em;
+  border-radius: 0.6em;
+  min-height: 2em;
+  box-shadow: 0 2px 13px #0003;
+  word-break: break-word;
+}
+
+/* Responsive tweaks */
+@media (max-width: 700px) {
+  form { flex-direction: column; gap: 0.5em; }
+  #log { padding: 0.7em 0.9em; font-size: 0.96em; }
+  h1 { font-size: 1.36em; }
+}
+
+.audio-only-container {
+text-align: center;
+margin-bottom: 1em;
+}
+
+/* Audio‑Only Modal Window */
+.audio-only-window {
+    visibility: hidden;
+    position: fixed;
+    top: 6em;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #202020;
+    color: #FFFFFF;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    border-radius: 8px;
+    z-index: 100;
+    transition: opacity 0.25s ease-in-out;
+    opacity: 0;
+    width: 90vw;
+    height: 80vh;
+    bottom: 50px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.audio-only-window.visible {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Close button in Audio-Only modal */
+.audio-only-window .close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: red;
+  color: #fff;
+  border: none;
+  border-radius: 0.2em;
+  width: 1.5em;
+  height: 1.5em;
+  font-size: 1em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 101;
+}
+.audio-only-window .close-button:hover {
+  background-color: darkred;
+}
+
+/* Audio‑Only Trigger Button */
+.audio-only-container {
+    text-align: center;
+    margin-bottom: 1em;
+}
+.audio-only-button {
+    background-color: #29a19c;
+    color: #000;
+    border: none;
+    border-radius: 0.3em;
+    padding: 0.75em 1.5em;
+    font-size: 1em;
+    cursor: pointer;
+}
+.audio-only-button:hover {
+    background-color: #2fd4c4;
+    color: #fff;
+}
+/* Convert Audio Button inside modal */
+.convert-audio-button {
+    background-color: #29a19c;
+    color: #000;
+    border: none;
+    border-radius: 0.3em;
+    padding: 0.75em 1.5em;
+    font-size: 1em;
+    cursor: pointer;
+}
+.convert-audio-button:hover {
+    background-color: #2fd4c4;
+}
+
+/* Footer */
+.footer-title {
+  min-width: 180px;
+  font-size: 16px;
+  padding-left: 10px;
+}
+.footer-container {
+  height: 30px;
+  min-height: 30px;
+    position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #333;
+  padding: 6px 0px;
+}
+/*Version Changelog button*/
+.footer-button {
+  background-color: black;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  display: inline-block;
+  padding: 4px;
+  margin: 0 10px;
+  vertical-align: middle;
+}
+
+.other-sites {
+  float: right;
+  padding-right: 10px;
+  margin-left: 35px;
+}
+.footer-links {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 100px;
+}
+.footer-links a img {
+  height: 16px;
+  width: 16px;
+/*    margin-right: 5px;*/
+  padding-right: 10px;
+
+}
+.footer-links a:hover {
+  color: #000;
+}
+.donate-button {
+  width: 170px;
+/*    height: auto;*/
+  padding-top: 3px;
+  margin: 0 10px;
+}
+
+/* Highlight labels when their checkboxes are toggled on */
+#multipleFontsCheckbox:checked + label,
+.multiple-fonts-checkbox:checked + .multiple-fonts-label {
+color: #fff;
+}
+#multipleFontsCheckbox:checked + label .multiple-fonts-desc,
+.multiple-fonts-checkbox:checked + .multiple-fonts-label .multiple-fonts-desc {
+color: #fff;
+}
+.rename-highpass-checkbox:checked + .rename-highpass-label,
+.rename-highpass-checkbox:checked ~ .rename-highpass-label {
+color: #fff;
+}
+
+/* Audio-only modal high-pass (if similar pattern is used) */
+#audioHigh:checked + label,
+#audioHigh:checked ~ label {
+color: #fff;
+}
