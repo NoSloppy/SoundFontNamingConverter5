@@ -1154,8 +1154,9 @@
             return;
           }
 
-          // === Multiple Fonts button processing ===
-          // For each font folder, process and download a zip
+          // --- Multiple Fonts, single ZIP containing all font folders ---
+          const masterZip = new JSZip();
+
           for (const [fontFolderName, fontFiles] of fontFolders.entries()) {
             // Set up conversionLogEntries cleanly for each font
             conversionLogEntries = [];
@@ -1166,13 +1167,15 @@
 
             const ffmpeg = new FFmpeg({ log: true, corePath: './ffmpeg/ffmpeg-core.js' });
             await ffmpeg.load();
-            const zip = new JSZip();
             const mainHpSuffix = renameHighPassCheckbox.checked ? '_HP' : '';
             const rootBase =
               (targetBoardEl.value.toUpperCase() === 'GOLDEN_HARVEST'
                 ? `sound1 - ${fontFolderName}_${targetBoardEl.value}`
                 : `${fontFolderName}_${targetBoardEl.value}`);
             const rootFolderName = `${rootBase}${mainHpSuffix}`;
+
+            // Instead of a new zip, create a subfolder for each font in the master zip
+            const fontZip = masterZip;
 
             // Only process files for this font folder
             let fontFilesProcessed = [];
@@ -1253,43 +1256,47 @@
             }
 
             // Pre-process extras/tracks/non-wavs for this font
-            let coreFiles = await handleExtrasAndTracks(processedFiles, zip, log, conversionLogEntries, rootFolderName);
+            let coreFiles = await handleExtrasAndTracks(processedFiles, fontZip, log, conversionLogEntries, rootFolderName);
 
-            // Board-specific logic (same as before)
+            // Board-specific logic (same as before, but all use fontZip now)
             const src = sourceBoardEl.value.toUpperCase();
             const tgt = targetBoardEl.value.toUpperCase();
 
             if (src === "PROFFIE" && tgt === "PROFFIE") {
-              await fat32ProffieOrganizer(coreFiles, mapping, rootFolderName, zip, log, conversionLogEntries);
-              finalizeAndDownload(src, tgt, zip, rootFolderName, fontFolderName);
+              await fat32ProffieOrganizer(coreFiles, mapping, rootFolderName, fontZip, log, conversionLogEntries);
               continue;
             }
             if (tgt === "CFX") {
-              await CFXOrganizer(coreFiles, mapping, rootFolderName, zip, log, conversionLogEntries);
-              finalizeAndDownload(src, tgt, zip, rootFolderName, fontFolderName);
+              await CFXOrganizer(coreFiles, mapping, rootFolderName, fontZip, log, conversionLogEntries);
               continue;
             }
             if (tgt === "VERSO") {
-              await VERSOOrganizer(coreFiles, mapping, rootFolderName, zip, log, conversionLogEntries);
-              finalizeAndDownload(src, tgt, zip, rootFolderName, fontFolderName);
+              await VERSOOrganizer(coreFiles, mapping, rootFolderName, fontZip, log, conversionLogEntries);
               continue;
             }
             if (tgt === "GOLDEN_HARVEST") {
-              await GHOrganizer(coreFiles, mapping, rootFolderName, zip, log, conversionLogEntries);
-              finalizeAndDownload(src, tgt, zip, rootFolderName, fontFolderName);
+              await GHOrganizer(coreFiles, mapping, rootFolderName, fontZip, log, conversionLogEntries);
               continue;
             }
             if (tgt === "XENO3") {
-              await XENO3Organizer(coreFiles, mapping, rootFolderName, zip, log, conversionLogEntries);
-              finalizeAndDownload(src, tgt, zip, rootFolderName, fontFolderName);
+              await XENO3Organizer(coreFiles, mapping, rootFolderName, fontZip, log, conversionLogEntries);
               continue;
             }
             if (tgt === "PROFFIE") {
-              await fat32ProffieOrganizer(coreFiles, mapping, rootFolderName, zip, log, conversionLogEntries);
-              finalizeAndDownload(src, tgt, zip, rootFolderName, fontFolderName);
+              await fat32ProffieOrganizer(coreFiles, mapping, rootFolderName, fontZip, log, conversionLogEntries);
               continue;
             }
           }
+
+          // At the very end, after all fonts processed:
+          const blob = await masterZip.generateAsync({ type: 'blob' });
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = `Renamed_MultipleFonts_${sourceBoardEl.value}_to_${targetBoardEl.value}.zip`;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+
           return; // Don't run the normal single-font flow
         }
 
