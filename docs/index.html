@@ -16,6 +16,24 @@
     <div id="popupContent">
         <h2>Version Changelog</h2>
 
+        <p>[5.1.0]<br>
+          <strong>Added / Changed</strong><br>
+          &bull; <strong>Custom dropdown selectors and file chooser:</strong><br>
+          &nbsp;&nbsp;Now custom-styled elements to be consistent with the rest of the interface.<br>
+          &nbsp;&nbsp;No more default browser menu buttons (I'm looking at YOU, Safari!)<br>
+          &bull; <strong>Improved layout for workflow:</strong><br>
+          &nbsp;&nbsp;Top controls always remain visible, and log messages now display in a scrollable window.<br>
+          &nbsp;&nbsp;All fonts shown back-to-back Multiple Font conversions, but still each has it's own log in zipped folders.<br>
+          &bull; <strong>UI alignment and style polish:</strong><br>
+          &nbsp;&nbsp;Everything lines up better and button highlights are now consistent. Cool glow, huh?<br>
+          <br>
+          <strong>Fixed</strong><br>
+          &bull; <strong>Conversion logs for Multiple Fonts:</strong><br>
+          &nbsp;&nbsp;Fixed an issue where running Multiple Fonts did not generate Conversion logs inside the downloaded ZIP.<br>
+          &bull; <strong>Logging bugs squashed:</strong><br>
+          &nbsp;&nbsp;All audio conversion and renaming logs are now clear, consistent, and mirrored in the console.<br>
+
+        </p>
         <p>[5.0.0]<br>
           <strong>Version 5: Browser-Based Lightning Speed!</strong><br>
           &bull; <strong>Brand new browser-based converter:</strong> No files are uploaded! Everything is processed instantly in your browser with NO lag, NO waiting on slow servers, and no limits to how many users can run it at once.<br>
@@ -145,50 +163,63 @@
     </div>
   </div>
 
-  <h1>SoundFontNamingConverter MVP <span style="color:#fff;font-size:0.62em;">  Version 5.0 </span></h1>
-
-  <p style="text-align:center;margin-bottom:0.7em;">1. Choose a source and target format from the drop down menus below.</p>
-  <form id="optionsForm" onsubmit="return false;">
-    <select id="sourceBoard" name="sourceBoard" title="Source board">
-      <option value="CFX">CFX</option>
-      <option value="GOLDEN_HARVEST">Golden Harvest</option>
-      <option value="PROFFIE">Proffieboard</option>
-      <option value="VERSO">Verso</option>
-      <option value="XENO3">Xeno 3</option>
-    </select>
-    <select id="targetBoard" name="targetBoard" title="Target board">
-      <option value="CFX">CFX</option>
-      <option value="GOLDEN_HARVEST">Golden Harvest</option>
-      <option value="PROFFIE">Proffieboard</option>
-      <option value="VERSO">Verso</option>
-      <option value="XENO3">Xeno 3</option>
-    </select>
-  </form>
-  <p class="select-label">2. Select a folder of sound font files:</p>
-  <div class="files-chooser-row">
-    <input type="file" id="folderInput" webkitdirectory multiple class="file-input">
+  <input type="hidden" name="sourceBoard" id="sourceBoard" value="CFX">
+  <input type="hidden" name="targetBoard" id="targetBoard" value="CFX">
+  <div class="main-content">
+    <h1>SoundFontNamingConverter MVP <span style="color:#fff;font-size:0.62em;"> Version 5.1.0 </span></h1>
+    <div class="top-flex-row">
+      <!-- LEFT SIDE -->
+      <div class="left-controls">
+        <div class="step-label">1. Choose a source and target format:</div>
+        <div class="dropdown-row">
+          <div class="custom-dropdown" id="sourceBoardSelect" tabindex="0" style="margin-right:1em;">
+            <button type="button" class="custom-dropdown-trigger">CFX</button>
+            <ul class="custom-dropdown-options">
+              <li class="custom-dropdown-option selected" data-value="PROFFIE">Proffieboard</li>
+              <li class="custom-dropdown-option" data-value="CFX">CFX</li>
+              <li class="custom-dropdown-option" data-value="VERSO">Verso</li>
+              <li class="custom-dropdown-option" data-value="XENO3">Xeno3</li>
+              <li class="custom-dropdown-option" data-value="GOLDEN_HARVEST">Golden Harvest</li>
+            </ul>
+          </div>
+          <div class="custom-dropdown" id="targetBoardSelect" tabindex="0">
+            <button type="button" class="custom-dropdown-trigger">CFX</button>
+            <ul class="custom-dropdown-options">
+              <li class="custom-dropdown-option selected" data-value="PROFFIE">Proffieboard</li>
+              <li class="custom-dropdown-option" data-value="CFX">CFX</li>
+              <li class="custom-dropdown-option" data-value="VERSO">Verso</li>
+              <li class="custom-dropdown-option" data-value="XENO3">Xeno3</li>
+              <li class="custom-dropdown-option" data-value="GOLDEN_HARVEST">Golden Harvest</li>
+            </ul>
+          </div>
+        </div>
+        <div class="step-label" style="margin-top: 1em;">2. Select a folder of sound font files:</div>
+        <div class="files-chooser-row">
+          <input type="file" id="folderInput" webkitdirectory directory multiple>
+          <label class="file-chooser-label" for="folderInput">
+            <span id="fileChooserLabelText">Choose Folder...</span>
+          </label>
+        </div>
+      </div>
+      <!-- RIGHT SIDE -->
+        <div class="right-controls">
+          <div class="checkbox-row">
+            <input type="checkbox" id="multipleFontsCheckbox" name="multipleFontsCheckbox" class="multiple-fonts-checkbox">
+            <label for="multipleFontsCheckbox" class="multiple-fonts-label"
+              title="Process each subfolder as a separate font">Multiple Fonts</label>
+          </div>
+          <div class="checkbox-row">
+            <input type="checkbox" id="mainHighPass" class="rename-highpass-checkbox">
+            <label for="mainHighPass" class="rename-highpass-label">Enable High-Pass Filter</label>
+          </div>
+          <div class="button-row">
+            <button type="button" id="renameBtn" class="action-btn" disabled>Rename & Download Zip</button>
+            <button type="button" id="audioOnlyButton" class="action-btn audio-only-button">Convert Audio Only</button>
+          </div>
+        </div>
+      </div>
+    <div id="log"></div>
   </div>
-  <div id="multipleFontsCheckboxContainer" class="multiple-fonts-row">
-    <input type="checkbox" id="multipleFontsCheckbox" name="multipleFontsCheckbox" class="multiple-fonts-checkbox">
-    <label for="multipleFontsCheckbox" class="multiple-fonts-label">
-      Multiple Fonts
-      <span class="multiple-fonts-desc">(process each subfolder as a separate font)</span>
-    </label>
-  </div>
-  <div class="rename-highpass-row">
-    <input type="checkbox" id="mainHighPass" class="rename-highpass-checkbox">
-    <label for="mainHighPass" class="rename-highpass-label">
-      Enable High-Pass Filter
-    </label>
-  </div>
-  <div class="rename-button-row">
-    <button id="renameBtn" disabled>Rename & Download Zip</button>
-  </div>
-  <!-- Audio‑Only Conversion Trigger -->
-  <div class="audio-only-container">
-    <button type="button" id="audioOnlyButton" class="audio-only-button">Convert Audio Only</button>
-  </div>
-  <div id="log"></div>
   <div class="footer-container">
     <span class="footer-title">NoSloppy - 2025</span>
     <button id="versionChangelogButton" class="footer-button" title="View the version changelog" type="button">Version Changelog</button>
@@ -228,7 +259,7 @@
     <div style="margin-bottom:1em;">
       <label><input type="checkbox" id="audioHigh"> Enable High‑Pass Filter</label>
     </div>
-    <div id="audioLog" style="margin-top:1em; width:100%; flex:1; overflow:auto; background:#23272b; padding:0.8em; color:#e2e2e2; font-family:'Fira Mono', monospace; font-size:0.95em; border-radius:0.4em;"></div>
+    <div id="audioLog"></div>
     <button type="button" id="convertAudioButton" class="convert-audio-button">Convert Audio & Download Zip</button>
   </div>
 
@@ -247,6 +278,44 @@
       "XENO3_TO_PROFFIE":           "CSV/XENO3_TO_PROFFIE.csv"
     };
 
+    // === Footer Banner Constant ===
+    const FOOTER_BANNER_TEXT = '------------------ | **** MTFBWY **** | ------------------';
+
+    // === Unified Logger Utilities ===
+    const fileLogLines = [];
+    // Audio‑Only plain-text log buffer
+    const audioFileLogLines = [];
+    function stripHtml(html) {
+      const tmp = document.createElement('div');
+      tmp.innerHTML = html;
+      return tmp.textContent;
+    }
+    function logMessage(msg, type = "default") {
+      // Queue for on-screen (dot-matrix) rendering
+      logQueue.push({ el: logEl, msg, type, className: "", afterFirst: false });
+      if (!logProcessing) processLogQueue();
+      // Also record plain-text for file
+      fileLogLines.push(stripHtml(msg));
+    }
+    // Alias existing universalLog calls to the new logger:
+    function universalLog(el, msg, type = "default", className = "", afterFirst = false) {
+      // Mirror plain-text logs to the dev console for main log (rename/download), not just audio-only
+      if (el === logEl) {
+        const txt = stripHtml(msg)
+          .replace(/ +/g, ' ')
+          .replace(/\n+/g, '\n')
+          .replace(/ +→ +/g, ' → ');
+        if (txt && txt.trim()) console.log(txt);
+        fileLogLines.push(txt);
+      }
+      // For audio-only, keep as before
+      if (el && el.id === 'audioLog') {
+        audioFileLogLines.push(stripHtml(msg));
+      }
+      // On-screen log queueing as before
+      logQueue.push({ el, msg, type, className, afterFirst });
+      if (!logProcessing) processLogQueue();
+    }
     // === DOM ===
     const logEl = document.getElementById('log');
     const folderInput = document.getElementById('folderInput');
@@ -255,6 +324,142 @@
     const renameBtn = document.getElementById('renameBtn');
     const renameHighPassCheckbox = document.getElementById('mainHighPass');
     const multipleFontsCheckbox = document.getElementById('multipleFontsCheckbox');
+    const fileLabel = document.querySelector('.file-chooser-label');
+    
+    document.addEventListener('DOMContentLoaded', function() {
+      checkReady();
+    });
+    
+    // Check if ready for renaming
+    function checkReady() {
+      const sourceVal = sourceBoardEl.value;
+      const targetVal = targetBoardEl.value;
+      const comboValid = (sourceVal !== targetVal) && !(sourceVal === 'PROFFIE' && targetVal === 'PROFFIE');
+
+      // Enable file chooser button if combo valid, regardless of files.length
+      const chooserEnabled = comboValid && mappingReady;
+
+      setFolderChooserEnabled(chooserEnabled);
+
+      // Change the label text accordingly:
+      const fileLabelText = document.getElementById('fileChooserLabelText');
+      if (chooserEnabled) {
+        fileLabelText.textContent = 'Choose Folder...';
+      } else {
+        fileLabelText.textContent = 'Choose a valid board combo first...';
+      }
+
+      // Enable rename only if files selected + combo valid + mapping ready
+      const renameEnabled = files.length > 0 && comboValid && mappingReady;
+      renameBtn.disabled = !renameEnabled;
+
+      console.log('chooserEnabled:', chooserEnabled, 'renameEnabled:', renameEnabled, 'files.length:', files.length);
+    }
+    
+    // --- Custom Dropdown Logic ---
+    function setupCustomSelect(containerId, inputId, onChange) {
+      const select = document.getElementById(containerId);
+      const trigger = select.querySelector('.custom-dropdown-trigger');
+      const options = select.querySelector('.custom-dropdown-options');
+      const opts = options.querySelectorAll('.custom-dropdown-option');
+      const hiddenInput = document.getElementById(inputId);
+
+      function updateOptionsList(selectedValue) {
+        // Only show options not currently selected
+        options.innerHTML = "";
+        Array.from(opts).forEach(opt => {
+          if (opt.dataset.value !== selectedValue) {
+            const newOpt = opt.cloneNode(true);
+            newOpt.classList.remove('selected');
+            options.appendChild(newOpt);
+            newOpt.addEventListener('click', function() {
+              trigger.textContent = this.textContent;
+              hiddenInput.value = this.dataset.value;
+              select.classList.remove('open');
+              updateOptionsList(this.dataset.value);
+              if (onChange) onChange(this.dataset.value);
+            });
+          }
+        });
+      }
+      // On first load, hide selected
+      updateOptionsList(hiddenInput.value);
+
+      trigger.addEventListener('click', function(e) {
+        select.classList.toggle('open');
+      });
+
+      // Keyboard nav (basic)
+      select.addEventListener('keydown', function(e) {
+        if (e.key === " " || e.key === "Enter") {
+          select.classList.toggle('open');
+          e.preventDefault();
+        }
+        if (e.key === "Escape") {
+          select.classList.remove('open');
+          trigger.blur();
+        }
+        if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+          const selIdx = Array.from(opts).findIndex(o => o.classList.contains('selected'));
+          let next = selIdx + (e.key === "ArrowDown" ? 1 : -1);
+          if (next < 0) next = opts.length - 1;
+          if (next >= opts.length) next = 0;
+          opts.forEach(o => o.classList.remove('selected'));
+          opts[next].classList.add('selected');
+          trigger.textContent = opts[next].textContent;
+          hiddenInput.value = opts[next].dataset.value;
+          if (onChange) onChange(opts[next].dataset.value);
+          e.preventDefault();
+        }
+      });
+
+      // Click outside to close
+      document.addEventListener('click', function(e) {
+        if (!select.contains(e.target)) select.classList.remove('open');
+      });
+    }
+
+    // Call for each dropdown, and re-use your mapping reload function
+    setupCustomSelect('sourceBoardSelect', 'sourceBoard', autoSelectAndLoadMapping);
+    setupCustomSelect('targetBoardSelect', 'targetBoard', autoSelectAndLoadMapping);
+
+    // Custom File Chooser
+    document.getElementById('folderInput').addEventListener('change', function(e) {
+      const label = document.getElementById('fileLabelText');
+      if (this.files.length > 0) {
+        // Show number of files/folders
+        label.textContent = this.files.length + ' file(s) selected';
+      } else {
+        label.textContent = 'Choose Folder...';
+      }
+    });
+
+    // Overlay function for zipping
+    function showZippingOverlay(show=true) {
+      const overlay = document.getElementById('zippingOverlay');
+      if (show) {
+        overlay.classList.add('active');
+      } else {
+        overlay.classList.remove('active');
+      }
+    }
+
+    // Helper: Wait for log to finish, show overlay, finalize download, hide overlay
+    async function finalizeAndDownloadWithOverlay(src, tgt, zip, rootFolderName, fontFolderName = "") {
+      function waitForLogDone() {
+        return new Promise(resolve => {
+          function check() {
+            if (!logProcessing) resolve();
+            else setTimeout(check, 15);
+          }
+          check();
+        });
+      }
+      await waitForLogDone();
+      showZippingOverlay(true);
+      finalizeAndDownload(src, tgt, zip, rootFolderName, fontFolderName);
+      // finalizeAndDownload will hide overlay after download
+    }
 
     // === State ===
     let files = [];
@@ -281,14 +486,18 @@
     loadKnownTracks();
 
     // Logging
-    function universalLog(el, msg, type = "default", className = "", afterFirst = false) {
+    let slowLogDelay = 2;    // ms per line, tweak as you like
+    let logQueue = [];
+    let logProcessing = false;
+
+
+    function addLogEntry(el, msg, type = "default", className = "", afterFirst = false) {
       const colors = {
         info: "#99fff5",
         error: "#ffb0a5",
         success: "#9f6",
         default: "#e2e2e2"
       };
-
       const safeType = (type || "default").toLowerCase();
       const color = colors[safeType] || colors.default;
 
@@ -300,9 +509,9 @@
         el.insertBefore(entry, el.children[1]);
       } else {
         el.appendChild(entry);
+        entry.scrollIntoView({ behavior: "auto", block: "end" });
       }
 
-      // Only add <br> if explicitly asked (e.g., msg === "")
       if (msg === "") {
         const br = document.createElement('br');
         if (className) br.classList.add(className);
@@ -312,14 +521,59 @@
           el.appendChild(br);
         }
       }
-      if (el === logEl || el === audioLogEl) {
-        if (afterFirst) {
-          el.scrollTop = 0; // Scroll to top if we just inserted high-pass line
-        } else {
-          el.scrollTop = el.scrollHeight;
-        }
-      }
     }
+
+    // Helper: log queue processor (for dot-matrix mode)
+    function processLogQueue() {
+      if (logQueue.length === 0) {
+        logProcessing = false;
+        return;
+      }
+      logProcessing = true;
+      const { el, msg, type, className, afterFirst } = logQueue.shift();
+      addLogEntry(el, msg, type, className, afterFirst);
+      setTimeout(processLogQueue, slowLogDelay);
+    }
+
+    // === Log header/footer helpers ===
+    function buildLogHeader(modeLabel, src, tgt, baseName) {
+      let hdr =
+        '------------------------------------------------\n' +
+        'Renamed with SoundFontNamingConverter V5\n' +
+        'Brian Conner a.k.a NoSloppy\n' +
+        modeLabel + '\n' +
+        new Date().toLocaleString() + '\n';
+      hdr += '------------------------------------------------\n';
+      return hdr;
+    }
+
+    // Unified banner helpers for logs and onscreen
+    function buildFooterBanner() {
+      return `<span style="color:#ffe066;font-weight:bold;">${FOOTER_BANNER_TEXT}</span>`;
+    }
+
+    // === Consolidated Logging Helpers ===
+
+    // Format the header message string
+    function formatHeaderMsg(baseName, src, tgt) {
+      return `Renaming font: "${baseName}" from ${src} → ${tgt}.`;
+    }
+
+    // Helper: Logs the per-font header both onscreen and for log file, returns log lines
+    function logFontHeader(fontFolderName, src, tgt, highPassEnabled) {
+      const headerLines = [];
+      const headerMsg = formatHeaderMsg(fontFolderName, src, tgt);
+      universalLog(logEl, headerMsg, "info");
+      headerLines.push(headerMsg);
+      if (highPassEnabled) {
+        logHighPass(logEl, true);
+        headerLines.push("High-Pass filtering enabled.");
+      }
+      universalLog(logEl, "", "default");
+      headerLines.push(""); // Blank line after header
+      return headerLines;
+    }
+
 
     function logHighPass(el, afterFirst = false) {
       // Remove any existing High-Pass log lines
@@ -331,18 +585,18 @@
       universalLog(el, "High-Pass filtering enabled.", "info", "high-pass-enabled", afterFirst);
     }
 
-    function clearLog() {
-      logEl.innerHTML = "";
-      document.body.style.overflow = "clip";
-      document.body.style.paddingBottom = "0";
-    }
-
     function removeHighPassNote() {
       document.querySelectorAll('.high-pass-enabled').forEach(el => {
         const next = el.nextSibling;
         el.remove();
         if (next && next.nodeName === 'BR') next.remove();
       });
+    }
+
+    function clearLog() {
+      logEl.innerHTML = "";
+      document.body.style.overflow = "clip";
+      document.body.style.paddingBottom = "0";
     }
 
     // Parse CSV (mapping) text into an object
@@ -400,23 +654,6 @@
       return { ...reverse, ...direct };
     }
 
-    // === Log header/footer helpers ===
-    function buildLogHeader(modeLabel, src, tgt, baseName) {
-      let hdr =
-        '------------------------------------------------\n' +
-        'Renamed with SoundFontNamingConverter V5\n' +
-        'Brian Conner a.k.a NoSloppy\n' +
-        modeLabel + '\n' +
-        new Date().toLocaleString() + '\n';
-      hdr += '------------------------------------------------\n';
-      return hdr;
-    }
-
-    // Unified banner helpers for logs and onscreen
-
-    function buildFooterBanner() {
-      return '<span style="color:#ffe066;font-weight:bold;">------------------ | **** MTFBWY **** | ------------------</span>';
-    }
 
     // Helper to prompt user to select files for a renaming set
     function promptSelectFiles(src, tgt) {
@@ -437,52 +674,23 @@
 
     // Helper: finalize zip, build log, trigger download, and UI reset
     function finalizeAndDownload(src, tgt, zip, rootFolderName, fontFolderName = "") {
-      // Build header via unified helper
-      const baseName = files[0]._original.split('/')[0];
-      const header = buildLogHeader(
-        'Font Renaming Log',
-        src,
-        tgt,
-        baseName,
-        renameHighPassCheckbox.checked
+      // Write plain-text conversion log from unified logger
+      const header = buildLogHeader('Font Renaming Log', src, tgt);
+      const body   = fileLogLines.join('\n') + '\n';
+      const baseName = fontFolderName || rootFolderName.split('_')[0];
+      // Build the done-line by reusing the header format and swapping the trailing period
+      const doneLine = formatHeaderMsg(baseName, src, tgt).replace(/\.$/, ' Done.');
+      const footerText = stripHtml(buildFooterBanner());
+      zip.file(
+        `${rootFolderName}/_Conversion_Log.txt`,
+        header + '\n' + body + '\n' + doneLine + '\n' + footerText + '\n'
       );
-      // Prepend the conversion header lines to the body
-      const preBodyLines = [];
-      preBodyLines.push(`Renaming: ${baseName} from ${src} to ${tgt}.`);
-      if (renameHighPassCheckbox.checked) {
-        preBodyLines.push('High-Pass filtering enabled.');
-      }
-      preBodyLines.push('');  // blank line after header lines
-      // Build full body including CFX footnotes
-      let bodyLines = [...preBodyLines, ...conversionLogEntries];
-      if (tgt === 'CFX') {
-        const pwroffCount = conversionLogEntries.filter(line => line.includes('pwroff2.wav')).length;
-        if (pwroffCount >= 1) {
-          const note1 = '-- CFX requires a "pwroff2" file for retractions when blade is moving.';
-          const note2 = '-- So if only a single RETRACTION sound is received, it is made into both "poweroff" and "pwroff2" to fulfill the requirement.';
-          bodyLines.push(note1, note2);
-         universalLog(logEl,note1, 'info');
-         universalLog(logEl,note2, 'info');
-        }
-        if (pwroffCount >= 2) {
-          const note3 = '-- If a second RETRACTION sound comes through, then it is used for "pwroff2" instead, replacing the first instance.';
-          const note4 = '-- Any additional RETRACTION sounds are then made as continued sequential "poweroff"s';
-          bodyLines.push(note3, note4);
-         universalLog(logEl,note3, 'info');
-         universalLog(logEl,note4, 'info');
-        }
-      }
-      // Build the file log by copying onscreen log entries:
+      // On-screen footer: blank line, done line, footer banner, and spacing
       universalLog(logEl, "", "default");
-      universalLog(logEl, `Renaming from ${src} → ${tgt} complete.`, "info");
+      universalLog(logEl, doneLine, "info");
       universalLog(logEl, buildFooterBanner(), "default");
-
-      // Add to Audio-Only Conversion log:
-      const rawLines = Array.from(logEl.querySelectorAll('div')).map(div => div.textContent.trim());
-      const body = '\n' + rawLines.join('\n') + '\n';
-      const logText = header + body;
-      zip.file(`${rootFolderName}/_Conversion_Log.txt`, logText);
-
+      universalLog(logEl, "", "default");
+      universalLog(logEl, "", "default");
       // Zip Renamed files up
       zip.generateAsync({ type: 'blob' }).then(blob => {
         const a = document.createElement('a');
@@ -496,6 +704,7 @@
         setTimeout(() => {
           universalLog(logEl, "<br><br>");
           renameBtn.disabled = false;
+          showZippingOverlay(false);
         }, 50);
       });
     }
@@ -618,14 +827,20 @@
       }
     }
 
-    // Check if ready for renaming
-    function checkReady() {
-      renameBtn.disabled = !(files.length && mappingReady);
+
+    function setFolderChooserEnabled(enabled) {
+  console.log('setFolderChooserEnabled called with', enabled);
+      folderInput.disabled = !enabled;
+      const label = document.querySelector('.file-chooser-label');
+      if (enabled) {
+        label.classList.remove('disabled');
+      } else {
+        label.classList.add('disabled');
+      }
     }
 
     // Dropdown change handlers
-    sourceBoardEl.addEventListener('change', autoSelectAndLoadMapping);
-    targetBoardEl.addEventListener('change', autoSelectAndLoadMapping);
+    // (No longer add 'change' listeners for hidden <input>; handled by custom dropdown logic now)
     autoSelectAndLoadMapping(); // On page load
 
     // Folder/file picker handler
@@ -900,10 +1115,24 @@
             if (counter === 1) {
               // First poweroff and also create pwroff2
               addZipEntry(zip, file, `${rootFolderName}/poweroff.wav`);
-              addZipEntry(zip, file, `${rootFolderName}/pwroff2.wav`, 'Also create pwroff2.wav');
+                            // Remove addZipEntry for pwroff2.wav, and instead log as dashMsgCreate and use zip.file directly
+              const dashMsgCreate = "- Also create pwroff2.wav";
+              universalLog(logEl, dashMsgCreate, "info");
+              conversionLogEntries.push(dashMsgCreate);
+              zip.file(`${rootFolderName}/pwroff2.wav`, file);
+              // On-screen rename log matching addZipEntry style:
+              const srcPathCreate = file._original || file.webkitRelativePath;
+              universalLog(logEl, `Created: <span style="color:#fff">${srcPathCreate}</span> <span style="color:#ff0">→</span> <span style="color:#9f6">${rootFolderName}/pwroff2.wav</span>`);
+              conversionLogEntries.push(`Created: ${srcPathCreate} -> ${rootFolderName}/pwroff2.wav`);
             } else if (counter === 2) {
               // Updated pwroff2 replacement
-              addZipEntry(zip, file, `${rootFolderName}/pwroff2.wav`, 'Updated pwroff2.wav');
+              const dashMsgUpdate = "- Updated pwroff2.wav";
+              universalLog(logEl, dashMsgUpdate, "info");
+              conversionLogEntries.push(dashMsgUpdate);
+              zip.file(`${rootFolderName}/pwroff2.wav`, file);
+              const srcPathUpdate = file._original || file.webkitRelativePath;
+              universalLog(logEl, `Renamed: <span style="color:#fff">${srcPathUpdate}</span> <span style="color:#ff0">→</span> <span style="color:#9f6">${rootFolderName}/pwroff2.wav</span>`);
+              conversionLogEntries.push(`Renamed: ${srcPathUpdate} -> ${rootFolderName}/pwroff2.wav`);
             } else {
               const outName = `poweroff${counter - 1}.wav`;
               addZipEntry(zip, file, `${rootFolderName}/${outName}`);
@@ -943,6 +1172,16 @@
             fileNameCounter[baseKey] = counter + 1;
             break;
         }
+      }
+      // Summary footnotes for CFX rules
+      const pwroffCount = fileLogLines.filter(line => /pwroff2\.wav/.test(line)).length;
+      if (pwroffCount >= 1) {
+        universalLog(logEl, '-- CFX requires a "pwroff2" file for retractions when blade is moving.', 'info');
+        universalLog(logEl, '-- So if only a single RETRACTION sound is received, it is made into both "poweroff" and "pwroff2" to fulfill the requirement.', 'info');
+      }
+      if (pwroffCount >= 2) {
+        universalLog(logEl, '-- If a second RETRACTION sound comes through, then it is used for "pwroff2" instead, replacing the first instance.', 'info');
+        universalLog(logEl, '-- Any additional RETRACTION sounds are then made as continued sequential "poweroff"s', 'info');
       }
     }
 
@@ -1127,8 +1366,96 @@
       }
       window.normalizeAndZipAudio = normalizeAndZipAudio;
 
+      // === Shared: Normalize and return all audio files as 44.1kHz/16-bit mono WAV, optionally high-pass, using ffmpeg ===
+      async function processAudioFiles({ files, ffmpeg, highPass, logFn }) {
+        const processed = [];
+        for (const file of files) {
+          let needsConvert = false;
+          const lower = file.name.toLowerCase();
+          if (lower.endsWith('.mp3') || lower.endsWith('.mp4')) {
+            needsConvert = true;
+          } else if (lower.endsWith('.wav')) {
+            const arr = await file.arrayBuffer();
+            const view = new DataView(arr);
+            let fmtChunkOffset = 12;
+            let foundFmt = false;
+            let sampleRate = 0;
+            let bits = 0;
+            while (fmtChunkOffset + 8 < arr.byteLength) {
+              const chunkId = String.fromCharCode(
+                view.getUint8(fmtChunkOffset),
+                view.getUint8(fmtChunkOffset + 1),
+                view.getUint8(fmtChunkOffset + 2),
+                view.getUint8(fmtChunkOffset + 3)
+              );
+              const chunkSize = view.getUint32(fmtChunkOffset + 4, true);
+              if (chunkId === 'fmt ') {
+                foundFmt = true;
+                sampleRate = view.getUint32(fmtChunkOffset + 12, true);
+                bits = view.getUint16(fmtChunkOffset + 22, true);
+                break;
+              }
+              fmtChunkOffset += 8 + chunkSize;
+            }
+            if (!foundFmt) {
+              sampleRate = view.getUint32(24, true);
+              bits = view.getUint16(34, true);
+            }
+            if (!sampleRate || sampleRate < 8000 || sampleRate > 192000) needsConvert = true;
+            if (!bits || bits > 32) needsConvert = true;
+            if (sampleRate !== 44100 || bits !== 16 || highPass) needsConvert = true;
+          }
+          if (needsConvert) {
+            const originalPath = file._original || file.webkitRelativePath;
+            const tempName = file.name.replace(/\.[^\.]+$/, '_tmp.wav').replace(/\.mp3$/i, '.wav').replace(/\.mp4$/i, '.wav');
+            try {
+              await ffmpeg.writeFile(file.name, new Uint8Array(await file.arrayBuffer()));
+              const args = ['-i', file.name, '-vn', '-ar', '44100', '-ac', '1', '-map_metadata', '-1'];
+              if (highPass) {
+                args.push('-af', 'highpass=f=100,highpass=f=100,highpass=f=100,volume=5dB');
+              }
+              args.push(tempName);
+              await ffmpeg.exec(args);
+              const outData = await ffmpeg.readFile(tempName);
+              if (!outData || !outData.length) {
+                console.error('[FFmpeg] Output data is empty after conversion:', tempName);
+              }
+              const newName = tempName.replace(/_tmp\.wav$/, '.wav');
+              let rel = originalPath;
+              if (rel.includes("/")) {
+                rel = rel.split('/').slice(1).join('/');
+              }
+              const zipRel = rel.replace(/\.[^\.]+$/, '.wav');
+              const newFile = new File([outData.buffer], newName, { type: 'audio/wav' });
+              newFile._original = originalPath;
+              newFile.webkitRelativePath = zipRel;
+              processed.push(newFile);
+              await ffmpeg.deleteFile(file.name);
+              await ffmpeg.deleteFile(tempName);
+              if (logFn) {
+                logFn(`<span style="color:#fff">Audio converted:</span> <span style="color:#fff">${originalPath}</span> <span style="color:#ff0">→</span> <span style="color:#9f6">${zipRel}</span>`);
+              }
+            } catch (err) {
+              console.error('[FFmpeg ERROR] During conversion of', file.name, err);
+              if (logFn) logFn(`<span style="color:#ffb0a5">Audio conversion failed for:</span> <span style="color:#fff">${originalPath}</span> - ${err.message}`);
+            }
+          } else {
+            if (logFn && lower.endsWith('.wav') && !highPass) {
+              let rel = file._original || file.webkitRelativePath;
+              if (rel.includes("/")) {
+                rel = rel.split('/').slice(1).join('/');
+              }
+              logFn(`<span style="color:#fff">Audio:</span> <span style="color:#fff">${rel}</span> is already good to go.`);
+            }
+            processed.push(file);
+          }
+        }
+        return processed;
+      }
+
       // --- Main renaming + zipping logic ---
       renameBtn.addEventListener('click', async () => {
+        clearLog();
         // Allow scrolling during/after conversion
         document.body.style.overflow = "";
         document.body.style.height = "";
@@ -1157,159 +1484,115 @@
           // --- Multiple Fonts, single ZIP containing all font folders ---
           const masterZip = new JSZip();
 
-          for (const [fontFolderName, fontFiles] of fontFolders.entries()) {
-            // Set up conversionLogEntries cleanly for each font
-            conversionLogEntries = [];
-            clearLog();
-            universalLog(logEl,`Renaming font: ${fontFolderName} (${sourceBoardEl.value} → ${targetBoardEl.value})`, "info");
-            if (renameHighPassCheckbox.checked) logHighPass(logEl, true);
-            universalLog(logEl, "", "default");
+      for (const [fontFolderName, fontFiles] of fontFolders.entries()) {
+        fileLogLines.length = 0; // reset plain-text log buffer for this font
+        universalLog(logEl, "", "default"); // blank line before header
+        logFontHeader(fontFolderName, sourceBoardEl.value, targetBoardEl.value, renameHighPassCheckbox.checked);
+        const ffmpeg = new FFmpeg({ log: true, corePath: './ffmpeg/ffmpeg-core.js' });
+        await ffmpeg.load();
+        const mainHpSuffix = renameHighPassCheckbox.checked ? '_HP' : '';
+        const rootBase =
+          (targetBoardEl.value.toUpperCase() === 'GOLDEN_HARVEST'
+            ? `sound1 - ${fontFolderName}_${targetBoardEl.value}`
+            : `${fontFolderName}_${targetBoardEl.value}`);
+        const rootFolderName = `${rootBase}${mainHpSuffix}`;
+        const fontZip = masterZip;
 
-            const ffmpeg = new FFmpeg({ log: true, corePath: './ffmpeg/ffmpeg-core.js' });
-            await ffmpeg.load();
-            const mainHpSuffix = renameHighPassCheckbox.checked ? '_HP' : '';
-            const rootBase =
-              (targetBoardEl.value.toUpperCase() === 'GOLDEN_HARVEST'
-                ? `sound1 - ${fontFolderName}_${targetBoardEl.value}`
-                : `${fontFolderName}_${targetBoardEl.value}`);
-            const rootFolderName = `${rootBase}${mainHpSuffix}`;
+        // Only process files for this font folder
+        let fontFilesProcessed = [];
+        for (const file of fontFiles) {
+          fontFilesProcessed.push(file);
+        }
 
-            // Instead of a new zip, create a subfolder for each font in the master zip
-            const fontZip = masterZip;
+        // Use shared audio processing helper (no logFn for rename)
+        const processedFiles = await processAudioFiles({
+          files: fontFilesProcessed,
+          ffmpeg,
+          highPass: renameHighPassCheckbox.checked
+        });
 
-            // Only process files for this font folder
-            let fontFilesProcessed = [];
-            for (const file of fontFiles) {
-              fontFilesProcessed.push(file);
-            }
+        // Pre-process extras/tracks/non-wavs for this font
+        let coreFiles = await handleExtrasAndTracks(processedFiles, fontZip, log, conversionLogEntries, rootFolderName);
 
-            // Pre-convert audio files for this font (reuse your same processing)
-            const processedFiles = [];
-            for (const file of fontFilesProcessed) {
-              const lower = file.name.toLowerCase();
-              let needsConvert = false;
-              if (lower.endsWith('.mp3') || lower.endsWith('.mp4')) {
-                needsConvert = true;
-              } else if (lower.endsWith('.wav')) {
-                const arr = await file.arrayBuffer();
-                const view = new DataView(arr);
+        // Board-specific logic (same as before, but all use fontZip now)
+        const src = sourceBoardEl.value.toUpperCase();
+        const tgt = targetBoardEl.value.toUpperCase();
 
-                // Default offsets for standard WAV (RIFF) PCM
-                let fmtChunkOffset = 12;
-                let foundFmt = false;
-                let sampleRate = 0;
-                let bits = 0;
+        if (src === "PROFFIE" && tgt === "PROFFIE") {
+          await fat32ProffieOrganizer(coreFiles, mapping, rootFolderName, fontZip, log, conversionLogEntries);
+        } else if (tgt === "CFX") {
+          await CFXOrganizer(coreFiles, mapping, rootFolderName, fontZip, log, conversionLogEntries);
+        } else if (tgt === "VERSO") {
+          await VERSOOrganizer(coreFiles, mapping, rootFolderName, fontZip, log, conversionLogEntries);
+        } else if (tgt === "GOLDEN_HARVEST") {
+          await GHOrganizer(coreFiles, mapping, rootFolderName, fontZip, log, conversionLogEntries);
+        } else if (tgt === "XENO3") {
+          await XENO3Organizer(coreFiles, mapping, rootFolderName, fontZip, log, conversionLogEntries);
+        } else if (tgt === "PROFFIE") {
+          await fat32ProffieOrganizer(coreFiles, mapping, rootFolderName, fontZip, log, conversionLogEntries);
+        }
 
-                // Find 'fmt ' chunk (handle non-standard chunk ordering)
-                while (fmtChunkOffset + 8 < arr.byteLength) {
-                  const chunkId = String.fromCharCode(
-                    view.getUint8(fmtChunkOffset),
-                    view.getUint8(fmtChunkOffset + 1),
-                    view.getUint8(fmtChunkOffset + 2),
-                    view.getUint8(fmtChunkOffset + 3)
-                  );
-                  const chunkSize = view.getUint32(fmtChunkOffset + 4, true);
-                  if (chunkId === 'fmt ') {
-                    foundFmt = true;
-                    // PCM sample rate is at offset +12, bits per sample at +22
-                    sampleRate = view.getUint32(fmtChunkOffset + 12, true);
-                    bits = view.getUint16(fmtChunkOffset + 22, true);
-                    break;
-                  }
-                  fmtChunkOffset += 8 + chunkSize;
-                }
-                if (!foundFmt) {
-                  // fallback to standard positions (may be wrong, but better than nothing)
-                  sampleRate = view.getUint32(24, true);
-                  bits = view.getUint16(34, true);
-                }
+        // Write this font’s conversion log to the ZIP from unified logger
+        const header = buildLogHeader('Font Renaming Log', sourceBoardEl.value, targetBoardEl.value);
+        const body   = fileLogLines.join('\n') + '\n';
+        // Append Done line and footer banner to text log
+        const doneLine = formatHeaderMsg(fontFolderName, sourceBoardEl.value, targetBoardEl.value).replace(/\.$/, ' Done.');
+        const footerText = stripHtml(buildFooterBanner());
+        masterZip.file(
+          `${rootFolderName}/_Conversion_Log.txt`,
+          header + '\n' + body + '\n' + doneLine + '\n' + footerText + '\n'
+        );
+        // On-screen footer for this font
+        universalLog(logEl, "", "default");
+        universalLog(
+          logEl,
+          formatHeaderMsg(fontFolderName, sourceBoardEl.value, targetBoardEl.value).replace(/\.$/, ' Done.'),
+          "info"
+        );
+        universalLog(logEl, buildFooterBanner(), "default");
+        universalLog(logEl, "", "default");
+        universalLog(logEl, "", "default");
+      }
 
-                // Debug output for diagnosis:
-                console.log("[WAV CHECK]", file.name, "sampleRate:", sampleRate, "bits:", bits);
-
-                // Treat 0 or obviously invalid values as "needs conversion"
-                if (!sampleRate || sampleRate < 8000 || sampleRate > 192000) needsConvert = true;
-                if (!bits || bits > 32) needsConvert = true;
-                if (sampleRate !== 44100 || bits !== 16 || renameHighPassCheckbox.checked) needsConvert = true;
+          // Wait for all log messages to finish before showing zipping overlay
+          function waitForLogDone() {
+            return new Promise(resolve => {
+              function check() {
+                if (!logProcessing) resolve();
+                else setTimeout(check, 15); // check every few ms
               }
-              if (needsConvert) {
-                const originalPath = file.webkitRelativePath;
-                const tempName = file.name.replace(/\.[^\.]+$/, '_tmp.wav').replace(/\.mp3$/i, '.wav').replace(/\.mp4$/i, '.wav');
-                await ffmpeg.writeFile(file.name, new Uint8Array(await file.arrayBuffer()));
-                const args = ['-i', file.name, '-vn', '-ar', '44100', '-ac', '1', '-map_metadata', '-1'];
-                if (renameHighPassCheckbox.checked) {
-                  args.push('-af', 'highpass=f=100,highpass=f=100,highpass=f=100,volume=5dB');
-                }
-                args.push(tempName);
-                await ffmpeg.exec(args);
-                const outData = await ffmpeg.readFile(tempName);
-                const newName = tempName.replace(/_tmp\.wav$/, '.wav');
-                const newFile = new File([outData.buffer], newName, { type: 'audio/wav' });
-                newFile._original = originalPath;
-                newFile.webkitRelativePath = originalPath.replace(/\.[^\.]+$/, '.wav');
-                processedFiles.push(newFile);
-                await ffmpeg.deleteFile(file.name);
-                await ffmpeg.deleteFile(tempName);
-              } else {
-                processedFiles.push(file);
-              }
-            }
-
-            // Pre-process extras/tracks/non-wavs for this font
-            let coreFiles = await handleExtrasAndTracks(processedFiles, fontZip, log, conversionLogEntries, rootFolderName);
-
-            // Board-specific logic (same as before, but all use fontZip now)
-            const src = sourceBoardEl.value.toUpperCase();
-            const tgt = targetBoardEl.value.toUpperCase();
-
-            if (src === "PROFFIE" && tgt === "PROFFIE") {
-              await fat32ProffieOrganizer(coreFiles, mapping, rootFolderName, fontZip, log, conversionLogEntries);
-              continue;
-            }
-            if (tgt === "CFX") {
-              await CFXOrganizer(coreFiles, mapping, rootFolderName, fontZip, log, conversionLogEntries);
-              continue;
-            }
-            if (tgt === "VERSO") {
-              await VERSOOrganizer(coreFiles, mapping, rootFolderName, fontZip, log, conversionLogEntries);
-              continue;
-            }
-            if (tgt === "GOLDEN_HARVEST") {
-              await GHOrganizer(coreFiles, mapping, rootFolderName, fontZip, log, conversionLogEntries);
-              continue;
-            }
-            if (tgt === "XENO3") {
-              await XENO3Organizer(coreFiles, mapping, rootFolderName, fontZip, log, conversionLogEntries);
-              continue;
-            }
-            if (tgt === "PROFFIE") {
-              await fat32ProffieOrganizer(coreFiles, mapping, rootFolderName, fontZip, log, conversionLogEntries);
-              continue;
-            }
+              check();
+            });
           }
+          await waitForLogDone();
+          showZippingOverlay(true);
 
-          // At the very end, after all fonts processed:
+          const mainHpSuffix = renameHighPassCheckbox.checked ? '_HP' : '';
           const blob = await masterZip.generateAsync({ type: 'blob' });
           const a = document.createElement('a');
           a.href = URL.createObjectURL(blob);
-          a.download = `Renamed_MultipleFonts_${sourceBoardEl.value}_to_${targetBoardEl.value}.zip`;
+          a.download = `Renamed_MultipleFonts_${sourceBoardEl.value}_to_${targetBoardEl.value}${mainHpSuffix}.zip`;
           document.body.appendChild(a);
           a.click();
           a.remove();
-
+          // Hide zipping overlay
+          showZippingOverlay(false);
+          universalLog(logEl, "<br><br>");
+          universalLog(logEl, "<br><br>");
           return; // Don't run the normal single-font flow
         }
 
         // === Single font/über font logic (default) ===
-        // (leave existing single-font logic untouched after this point)
         // Always create a new FFmpeg instance per run to reset memory
         const ffmpeg = new FFmpeg({ log: true, corePath: './ffmpeg/ffmpeg-core.js' });
         await ffmpeg.load();
         // Reset conversion log entries
         conversionLogEntries = [];
         clearLog();
+        fileLogLines.length = 0;
         // Show header
-        universalLog(logEl,`Renaming files: ${sourceBoardEl.value} → ${targetBoardEl.value}...\n`, "info");
+        const baseName = originalFiles[0].webkitRelativePath.split('/')[0];
+        universalLog(logEl, `Renaming font: "${baseName}" from ${sourceBoardEl.value} → ${targetBoardEl.value}.`, "info");
         // Log high-pass status at the top if enabled
         if (renameHighPassCheckbox.checked) logHighPass(logEl, true);
         universalLog(logEl, "", "default");
@@ -1318,104 +1601,18 @@
         const zip = new JSZip();
         // Determine root folder name for zip, with optional HP suffix
         const mainHpSuffix = renameHighPassCheckbox.checked ? '_HP' : '';
-        const baseName = originalFiles[0].webkitRelativePath.split('/')[0];
         const rootBase =
           (targetBoardEl.value.toUpperCase() === 'GOLDEN_HARVEST'
             ? `sound1 - ${baseName}_${targetBoardEl.value}`
             : `${baseName}_${targetBoardEl.value}`);
         const rootFolderName = `${rootBase}${mainHpSuffix}`;
 
-        // Pre-convert audio files (MP3/MP4 and non-44.1kHz/16-bit WAV) to proper WAV before renaming
-        // === CHUNKED audio conversion for über mode ===
-        const processedFiles = [];
-        const audioFiles = files.filter(file => {
-          const lower = file.name.toLowerCase();
-          return lower.endsWith('.wav') || lower.endsWith('.mp3') || lower.endsWith('.mp4');
+        // Use shared audio processing helper (no logFn for rename)
+        files = await processAudioFiles({
+          files,
+          ffmpeg,
+          highPass: renameHighPassCheckbox.checked
         });
-        const nonAudioFiles = files.filter(file => {
-          const lower = file.name.toLowerCase();
-          return !lower.endsWith('.wav') && !lower.endsWith('.mp3') && !lower.endsWith('.mp4');
-        });
-
-        // Add non-audio files directly, unchanged
-        for (const file of nonAudioFiles) {
-          processedFiles.push(file);
-        }
-
-        const chunkSize = 100;
-        for (let i = 0; i < audioFiles.length; i += chunkSize) {
-          const chunk = audioFiles.slice(i, i + chunkSize);
-          const ffmpeg = new FFmpeg({ log: true, corePath: './ffmpeg/ffmpeg-core.js' });
-          await ffmpeg.load();
-
-          for (const file of chunk) {
-            try {
-<!--              console.log("About to process:", file.webkitRelativePath, file.name);-->
-              const lower = file.name.toLowerCase();
-              let needsConvert = false;
-              if (lower.endsWith('.mp3') || lower.endsWith('.mp4')) {
-                needsConvert = true;
-              } else if (lower.endsWith('.wav')) {
-                const arr = await file.arrayBuffer();
-                const view = new DataView(arr);
-                const sampleRate = view.getUint32(24, true);
-                const bits = view.getUint16(34, true);
-                // Convert if format is wrong or high-pass filtering is requested
-                if (sampleRate !== 44100 || bits !== 16 || renameHighPassCheckbox.checked) needsConvert = true;
-              }
-              if (needsConvert) {
-                const originalPath = file.webkitRelativePath;
-                const tempName = file.name.replace(/\.[^\.]+$/, '_tmp.wav').replace(/\.mp3$/i, '.wav').replace(/\.mp4$/i, '.wav');
-                await ffmpeg.writeFile(file.name, new Uint8Array(await file.arrayBuffer()));
-
-                // FFmpeg args for normalization, optional high-pass, and strip metadata
-                const args = ['-i', file.name, '-vn', '-ar', '44100', '-ac', '1', '-map_metadata', '-1'];
-                if (renameHighPassCheckbox.checked) {
-                  args.push('-af', 'highpass=f=100,highpass=f=100,highpass=f=100,volume=5dB');
-                }
-                args.push(tempName);
-                await ffmpeg.exec(args);
-                const outData = await ffmpeg.readFile(tempName);
-                const newName = tempName.replace(/_tmp\.wav$/, '.wav');
-
-                // --- PATCHED: Remove ALL leading baseName from path ---
-                let rel = originalPath;
-                // Defensive loop: strips every occurrence of baseName + "/" from the start
-                const basePattern = new RegExp('^' + baseName.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&') + '/+');
-                while (basePattern.test(rel)) {
-                  rel = rel.replace(basePattern, '');
-                }
-                const normalizedRel = rel.replace(/\.[^\.]+$/, '.wav');
-                // PATCH: Remove all occurrences of baseName from start of normalizedRel before assigning to webkitRelativePath
-                let zipRel = normalizedRel;
-                while (zipRel.startsWith(baseName + "/")) {
-                  zipRel = zipRel.slice(baseName.length + 1);
-                }
-                // END PATCH
-
-                console.log("CONVERTED", originalPath, "==>", zipRel); // optional debug
-
-                const newFile = new File([outData.buffer], newName, { type: 'audio/wav' });
-                newFile._original = originalPath;
-                newFile.webkitRelativePath = zipRel;
-                processedFiles.push(newFile);
-
-                await ffmpeg.deleteFile(file.name);
-                await ffmpeg.deleteFile(tempName);
-              } else {
-                processedFiles.push(file);
-              }
-            } catch (err) {
-              // Enhanced error logging!
-              let fileLabel = file.webkitRelativePath || file.name;
-              let msg = `<span style="color:#ffb0a5">Error processing ${fileLabel}: ${err && err.message ? err.message : err}</span>`;
-              universalLog(logEl, msg, "error");
-              console.error("Error processing", fileLabel, err);
-            }
-          }
-          // Allow ffmpeg instance to be garbage collected before next chunk
-        }
-        files = processedFiles;
 
         // Pre-process extras, tracks, and non-wavs
         let coreFiles = await handleExtrasAndTracks(files, zip, log, conversionLogEntries, rootFolderName);
@@ -1426,32 +1623,23 @@
 
         if (src === "PROFFIE" && tgt === "PROFFIE") {
           await fat32ProffieOrganizer(coreFiles, mapping, rootFolderName, zip, log, conversionLogEntries);
-          finalizeAndDownload(src, tgt, zip, rootFolderName);
-          return;
-        }
-        if (tgt === "CFX") {
+          await finalizeAndDownloadWithOverlay(src, tgt, zip, rootFolderName);
+        } else if (tgt === "CFX") {
           await CFXOrganizer(coreFiles, mapping, rootFolderName, zip, log, conversionLogEntries);
-          finalizeAndDownload(src, tgt, zip, rootFolderName);
-          return;
-        }
-        if (tgt === "VERSO") {
+          await finalizeAndDownloadWithOverlay(src, tgt, zip, rootFolderName);
+        } else if (tgt === "VERSO") {
           await VERSOOrganizer(coreFiles, mapping, rootFolderName, zip, log, conversionLogEntries);
-          finalizeAndDownload(src, tgt, zip, rootFolderName);
-          return;
-        }
-        if (tgt === "GOLDEN_HARVEST") {
+          await finalizeAndDownloadWithOverlay(src, tgt, zip, rootFolderName);
+        } else if (tgt === "GOLDEN_HARVEST") {
           await GHOrganizer(coreFiles, mapping, rootFolderName, zip, log, conversionLogEntries);
-          finalizeAndDownload(src, tgt, zip, rootFolderName);
-          return;
-        }
-        if (tgt === "XENO3") {
+          await finalizeAndDownloadWithOverlay(src, tgt, zip, rootFolderName);
+        } else if (tgt === "XENO3") {
           await XENO3Organizer(coreFiles, mapping, rootFolderName, zip, log, conversionLogEntries);
-          finalizeAndDownload(src, tgt, zip, rootFolderName);
-          return;
-        }
-        if (tgt === "PROFFIE") {
+          await finalizeAndDownloadWithOverlay(src, tgt, zip, rootFolderName);
+        } else {
+          // Fallback to Proffie organizer for any other case
           await fat32ProffieOrganizer(coreFiles, mapping, rootFolderName, zip, log, conversionLogEntries);
-          finalizeAndDownload(src, tgt, zip, rootFolderName);
+          await finalizeAndDownloadWithOverlay(src, tgt, zip, rootFolderName);
           return;
         }
       });
@@ -1502,9 +1690,10 @@
       const audioHighPassCheckbox = document.getElementById('audioHigh');
       try {
         audioLogEl.innerHTML = "";
+        audioFileLogLines.length = 0; // reset audio log buffer
         // Re-add header line showing folder name
         const folderName = document.getElementById('audioInput').files[0]?.webkitRelativePath.split('/')[0] || 'selected';
-        universalLog(audioLogEl,`<span style="color:#99fff5; font-weight:bold">Converting Audio-Only - ${folderName}...</span>`);
+        universalLog(audioLogEl,`<span style="color:#99fff5; font-weight:bold">Converting Audio-Only - ${folderName}.</span>`);
         // Log high-pass status visibly and for zipped log if enabled
         if (audioHighPassCheckbox.checked) {
           universalLog(audioLogEl, "High-Pass filtering enabled.", "info", "high-pass-enabled");
@@ -1535,11 +1724,14 @@
         const baseFolder = document.getElementById('audioInput').files[0]?.webkitRelativePath.split('/')[0] || 'selected';
         const rootZipFolder = `${baseFolder}${audioHPSuffix}`;
 
-        // Log and zip non-audio files (e.g., images, txt), using full relative path
+        // Log and zip only true non-audio/video files (e.g., images, txt), using full relative path
         allFiles.forEach(file => {
           const lower = file.name.toLowerCase();
-          if (!lower.endsWith('.wav') && !lower.endsWith('.mp3')) {
-            // --- fix: remove all leading baseFolder(s) from rel ---
+          if (
+            !lower.endsWith('.wav') &&
+            !lower.endsWith('.mp3') &&
+            !lower.endsWith('.mp4')
+          ) {
             let rel = file.webkitRelativePath;
             while (rel.startsWith(baseFolder + "/")) {
               rel = rel.slice(baseFolder.length + 1);
@@ -1559,178 +1751,38 @@
           return;
         }
 
-        // Audio conversion logic: handle WAV and MP3 files (no chunking needed for audio-only)
-        // Audio conversion logic: CHUNKED to avoid wasm memory errors!
-        const chunkSize = 50;
-        for (let i = 0; i < audioFiles.length; i += chunkSize) {
-          const chunk = audioFiles.slice(i, i + chunkSize);
-          const ffmpeg = new FFmpeg({
-            log: true,
-            corePath: './ffmpeg/ffmpeg-core.js'
-          });
-          await ffmpeg.load();
-
-          for (const file of chunk) {
-            try {
-              let rel = file.webkitRelativePath;
-              // Strip all leading baseFolder(s) from rel
-              while (rel.startsWith(baseFolder + "/")) {
-                rel = rel.slice(baseFolder.length + 1);
-              }
-              let zipPath = `${rootZipFolder}/${rel}`;
-              // If MP3, always convert to WAV and update output path
-              if (file.name.toLowerCase().endsWith('.mp3')) {
-                zipPath = zipPath.replace(/\.mp3$/i, '.wav');
-                await normalizeAndZipAudio({
-                  file,
-                  ffmpeg,
-                  zip,
-                  zipPath,
-                  audioHighPass: audioHighPassCheckbox.checked,
-                  logFn: (msg, type = "info") => universalLog(audioLogEl, msg, type),
-                  suppressConversionLog: true
-                });
-                universalLog(audioLogEl,
-                  '<span style="color:#99fff5; font-weight:bold">Audio converted:</span> ' +
-                  `<span style="color:#fff">${rel}</span> ` +
-                  '<span style="color:#ff0">→</span> ' +
-                  `<span style="color:#9f6">${zipPath}</span>`
-                );
-                if (audioHighPassCheckbox.checked) {
-                  universalLog(audioLogEl,
-                    '<span style="color:#99fff5; font-weight:bold">Audio (high-pass):</span> ' +
-                    `<span style="color:#fff">${rel.replace(/\.mp3$/i, '.wav')}</span> → applied high-pass filter.`
-                  );
-                }
-                continue;
-              }
-              // WAV Files: Inspect header for sample rate/bit depth
-              const arrayBuffer = await file.arrayBuffer();
-              const view = new DataView(arrayBuffer);
-
-              // Default offsets for standard WAV (RIFF) PCM
-              let fmtChunkOffset = 12;
-              let foundFmt = false;
-              let sampleRate = 0;
-              let bitsPerSample = 0;
-
-              // Find 'fmt ' chunk (handle non-standard chunk ordering)
-              while (fmtChunkOffset + 8 < arrayBuffer.byteLength) {
-                const chunkId = String.fromCharCode(
-                  view.getUint8(fmtChunkOffset),
-                  view.getUint8(fmtChunkOffset + 1),
-                  view.getUint8(fmtChunkOffset + 2),
-                  view.getUint8(fmtChunkOffset + 3)
-                );
-                const chunkSize = view.getUint32(fmtChunkOffset + 4, true);
-                if (chunkId === 'fmt ') {
-                  foundFmt = true;
-                  sampleRate = view.getUint32(fmtChunkOffset + 12, true);
-                  bitsPerSample = view.getUint16(fmtChunkOffset + 22, true);
-                  break;
-                }
-                fmtChunkOffset += 8 + chunkSize;
-              }
-              if (!foundFmt) {
-                // fallback to standard positions
-                sampleRate = view.getUint32(24, true);
-                bitsPerSample = view.getUint16(34, true);
-              }
-
-              // Debug output for diagnosis:
-              console.log("[WAV CHECK]", file.name, "sampleRate:", sampleRate, "bits:", bitsPerSample);
-
-              // Treat 0 or obviously invalid values as "needs conversion"
-              if (!sampleRate || sampleRate < 8000 || sampleRate > 192000) {
-                await normalizeAndZipAudio({
-                  file,
-                  ffmpeg,
-                  zip,
-                  zipPath,
-                  audioHighPass: audioHighPassCheckbox.checked,
-                  logFn: (msg, type = "info") => universalLog(audioLogEl, msg, type)
-                });
-                if (audioHighPassCheckbox.checked) {
-                  universalLog(audioLogEl,
-                    '<span style="color:#99fff5; font-weight:bold">Audio (high-pass):</span> ' +
-                    `<span style="color:#fff">${rel}</span> → applied high-pass filter.`
-                  );
-                }
-                continue;
-              }
-              if (!bitsPerSample || bitsPerSample > 32) {
-                await normalizeAndZipAudio({
-                  file,
-                  ffmpeg,
-                  zip,
-                  zipPath,
-                  audioHighPass: audioHighPassCheckbox.checked,
-                  logFn: (msg, type = "info") => universalLog(audioLogEl, msg, type)
-                });
-                if (audioHighPassCheckbox.checked) {
-                  universalLog(audioLogEl,
-                    '<span style="color:#99fff5; font-weight:bold">Audio (high-pass):</span> ' +
-                    `<span style="color:#fff">${rel}</span> → applied high-pass filter.`
-                  );
-                }
-                continue;
-              }
-              // WAV already correct format, High-Pass OFF: just zip
-              if (sampleRate === 44100 && bitsPerSample === 16 && !audioHighPassCheckbox.checked) {
-                universalLog(audioLogEl,
-                  '<span style="color:#99fff5; font-weight:bold">Audio:</span> ' +
-                  `<span style="color:#fff">${rel}</span> is already good to go.`
-                );
-                zip.file(zipPath, file);
-                continue;
-              }
-              // WAV is correct format, but High-Pass is ON
-              if (sampleRate === 44100 && bitsPerSample === 16 && audioHighPassCheckbox.checked) {
-                universalLog(audioLogEl,
-                  '<span style="color:#99fff5; font-weight:bold">Audio (high-pass):</span> ' +
-                  `<span style="color:#fff">${rel}</span> → applied high-pass filter.`
-                );
-                await normalizeAndZipAudio({
-                  file,
-                  ffmpeg,
-                  zip,
-                  zipPath,
-                  audioHighPass: audioHighPassCheckbox.checked,
-                  logFn: (msg, type = "info") => universalLog(audioLogEl, msg, type),
-                  suppressConversionLog: true
-                });
-                continue;
-              }
-              // WAV not correct format, or needs High-Pass
-              await normalizeAndZipAudio({
-                file,
-                ffmpeg,
-                zip,
-                zipPath,
-                audioHighPass: audioHighPassCheckbox.checked,
-                logFn: (msg, type = "info") => universalLog(audioLogEl, msg, type)
-              });
-              if (audioHighPassCheckbox.checked) {
-                universalLog(audioLogEl,
-                  '<span style="color:#99fff5; font-weight:bold">Audio (high-pass):</span> ' +
-                  `<span style="color:#fff">${rel}</span> → applied high-pass filter.`
-                );
-              }
-            } catch (fileErr) {
-              let errorString;
-              if (fileErr && typeof fileErr === "object") {
-                errorString = fileErr.message || JSON.stringify(fileErr);
-              } else {
-                errorString = String(fileErr);
-              }
-              universalLog(audioLogEl,
-                '<span style="color:#ffb0a5">Error processing ' +
-                `<span style="color:#fff">${file.name}</span>: ${errorString}</span>`
-              );
-              console.error("Error processing", file.name, fileErr);
-            }
+        // Use shared audio processing helper for audio files, with logFn for onscreen log and debug logging
+        const processedAudioFiles = await processAudioFiles({
+          files: audioFiles,
+          ffmpeg,
+          highPass: audioHighPassCheckbox.checked,
+          logFn: (msg) => {
+            // Remove HTML tags for console and mirror only the plain log line
+            const txt = stripHtml(msg)
+              .replace(/ +/g, ' ')         // collapse spaces
+              .replace(/\n+/g, '\n')       // collapse newlines
+              .replace(/ +→ +/g, ' → ');   // ensure arrow spacing
+            if (txt) console.log(txt);
+            universalLog(audioLogEl, msg, "info");
           }
-          // let this ffmpeg instance be GC'd
+        });
+        // Only add WAV files to the zip (remove original MP3s)
+        for (const file of processedAudioFiles) {
+          // Only add .wav files (not mp3s)
+          if (!file.name.toLowerCase().endsWith('.wav')) {
+            console.warn("Skipping non-WAV in processedAudioFiles:", file.name);
+            continue;
+          }
+          let rel = file._original || file.webkitRelativePath || file.name;
+          // Ensure .wav extension in zip
+          rel = rel.replace(/\.[^\.]+$/, '.wav');
+          // Strip all leading baseFolder(s) from rel
+          while (rel.startsWith(baseFolder + "/")) {
+            rel = rel.slice(baseFolder.length + 1);
+          }
+          if (!rel) rel = file.name.replace(/\.[^\.]+$/, '.wav');
+          const zipPath = `${rootZipFolder}/${rel}`;
+          zip.file(zipPath, file);
         }
 
         // Add to onscreen log:
@@ -1738,7 +1790,7 @@
         universalLog(audioLogEl, "Audio-Only Conversion complete.", "info");
         universalLog(audioLogEl, buildFooterBanner(), "default");
 
-        // Add to Audio-Only Conversion log by copying onscreen log entries:
+        // Add to Audio-Only Conversion log using the unified buffer:
         const header = buildLogHeader(
           'Audio-Only Conversion Log',
           '',
@@ -1746,11 +1798,11 @@
           '',
           audioHighPassCheckbox.checked
         );
-        const rawLines = Array.from(audioLogEl.querySelectorAll('div')).map(div => div.textContent.trim());
-        const body = '\n' + rawLines.join('\n') + '\n';
-        zip.file(`${rootZipFolder}/_Audio_Conversion_Log.txt`, header + body);
+        // Write plain-text Audio-Only Conversion log
+        const body = audioFileLogLines.join('\n') + '\n';
+        zip.file(`${rootZipFolder}/_Audio_Conversion_Log.txt`, header + '\n' + body);
 
-      // Zip Converted files up
+        // Zip Converted files up
         const blob = await zip.generateAsync({ type: 'blob' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
@@ -1763,44 +1815,47 @@
       }
     });
 
-const popup = document.getElementById('popup');
-const popupCloseButton = document.getElementById('popupCloseButton');
-const dontShowAgainCheckbox = document.getElementById('dontShowAgain');
-const versionChangelogButton = document.getElementById('versionChangelogButton');
+    const popup = document.getElementById('popup');
+    const popupCloseButton = document.getElementById('popupCloseButton');
+    const dontShowAgainCheckbox = document.getElementById('dontShowAgain');
+    const versionChangelogButton = document.getElementById('versionChangelogButton');
 
-document.addEventListener('DOMContentLoaded', function () {
-    // If you have other UI init, leave those too!
-    // Example: closeButton.click(); fileInputButton.classList.remove('available');
-    // Only keep if relevant. Otherwise, can remove/comment those two lines.
+    document.addEventListener('DOMContentLoaded', function () {
+        // If you have other UI init, leave those too!
+        // Example: closeButton.click(); fileInputButton.classList.remove('available');
+        // Only keep if relevant. Otherwise, can remove/comment those two lines.
 
-    // Check localStorage to determine if the popup should be shown
-    const dontShowAgainFlag = localStorage.getItem('dontShowChangelog');
-    if (dontShowAgainFlag === 'true') {
-        dontShowAgainCheckbox.checked = true;
-    } else {
-        popup.classList.add('show');
-    }
+        // Check localStorage to determine if the popup should be shown
+        const dontShowAgainFlag = localStorage.getItem('dontShowChangelog');
+        if (dontShowAgainFlag === 'true') {
+            dontShowAgainCheckbox.checked = true;
+        } else {
+            popup.classList.add('show');
+        }
 
-    popupCloseButton.addEventListener('click', function () {
-        popup.classList.remove('show');
-        localStorage.setItem('dontShowChangelog', dontShowAgainCheckbox.checked ? 'true' : 'false');
+        popupCloseButton.addEventListener('click', function () {
+            popup.classList.remove('show');
+            localStorage.setItem('dontShowChangelog', dontShowAgainCheckbox.checked ? 'true' : 'false');
+        });
+
+        dontShowAgainCheckbox.addEventListener('change', function () {
+            localStorage.setItem('dontShowChangelog', this.checked ? 'true' : 'false');
+        });
+
+        versionChangelogButton.addEventListener('click', function () {
+            dontShowAgainCheckbox.checked = localStorage.getItem('dontShowChangelog') === 'true';
+            popup.classList.add('show');
+        });
     });
-
-    dontShowAgainCheckbox.addEventListener('change', function () {
-        localStorage.setItem('dontShowChangelog', this.checked ? 'true' : 'false');
-    });
-
-    versionChangelogButton.addEventListener('click', function () {
-        dontShowAgainCheckbox.checked = localStorage.getItem('dontShowChangelog') === 'true';
-        popup.classList.add('show');
-    });
-});
 
   </script>
 </body>
+  <div id="zippingOverlay">
+    Zipping...<br>
+    <span class="zipping-wait-text">Please wait</span>
+  </div>
 </html>
 
 <!--
 100% working!?
 -->
-

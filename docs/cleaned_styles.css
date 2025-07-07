@@ -1,9 +1,16 @@
 html, body {
+  height: 100%;
   margin: 0;
   padding: 0;
   overflow-x: hidden;
   background: #222831;
   color: #e2e2e2;
+}
+.main-content {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 30px); /* 30px is the height of .footer-container */
+  min-height: 0;
 }
 h1 {
   text-align: center;
@@ -20,7 +27,7 @@ form {
   justify-content: center;
   align-items: center;
   gap: 1em;
-  margin-bottom: 2em;
+/*  margin-bottom: 2em;*/
 }
 select, input[type="checkbox"], input[type="file"], button {
   font-size: 1.1em;
@@ -28,11 +35,11 @@ select, input[type="checkbox"], input[type="file"], button {
   border-radius: 0.3em;
   border: none;
   outline: none;
-  margin-right: 0.7em;
+  margin-right: 1.7em;
   margin-bottom: 0.2em;
   background: #31363b;
   color: #f6f6f6;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.09);
+  box-shadow: 0 1px 3px #191e23c9, 0 0 4px #29a19c77 inset;
   transition: background 0.2s;
 }
 select:focus, input[type="file"]:focus {
@@ -58,7 +65,7 @@ button {
   font-weight: 600;
   border: none;
   transition: background 0.23s, color 0.23s;
-  box-shadow: 0 1px 3px #191e23c9;
+  box-shadow: 0 1px 3px #191e23c9, 0 0 4px #29a19c77 inset;
   padding: 0.52em 1.35em;
   margin-top: 1.2em;
 }
@@ -66,6 +73,28 @@ button:hover:enabled {
   background: #2fd4c4;
   color: #fff;
 }
+
+/* Only highlight trigger when dropdown is closed and hovered */
+.custom-dropdown:not(.open) .custom-dropdown-trigger:hover:enabled {
+  background: #29a19c !important;
+  color: #000 !important;
+}
+
+/* Keep trigger neutral when dropdown is open */
+.custom-dropdown.open .custom-dropdown-trigger {
+  background: #29a19c !important;
+  color: #000 !important;
+  /* REMOVE the extra border/glow to prevent the "grow" bug */
+  box-shadow: 0 1px 3px #191e23c9, 0 0 4px #29a19c77 inset;
+}
+
+/* Option highlights when hovered or selected */
+.custom-dropdown-option:hover,
+.custom-dropdown-option.selected {
+  background: #29a19c !important;
+  color: #000 !important;
+}
+
 button:disabled {
   opacity: 0.6;
   background: #444;
@@ -132,64 +161,90 @@ p.select-label {
   text-align: center;
   margin-bottom: 0.7em;
 }
-.files-chooser-row {
-display: flex;
-justify-content: center;
-align-items: center;
+
+.step-label {
+  font-size: 1.08em;
+  color: #fff;
+  margin-bottom: 0.55em;
+  font-weight: 500;
 }
-.file-input {
-margin-bottom: 0.5em;
+
+.button-row {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 }
-.multiple-fonts-row {
-display: flex;
-justify-content: center;
-align-items: center;
-margin-bottom: 0.7em;
+
+.action-btn {
+  font-size: 1.07em;
+  box-sizing: border-box;
+  margin-bottom: 0.3em;
+  padding: 0.6em 1.2em;
+  display: block;
+  text-align: center;
+  white-space: nowrap;     /* Prevent wrapping! */
+  min-width: 230px;        /* Minimum width so both buttons look even */
+  max-width: 320px;        /* Maximum width, allows "Rename & Download Zip" to fit on one line */
+  width: auto;             /* Let the button fit its content naturally */
 }
+
+@media (max-width: 900px) {
+  .row-flex-top { flex-direction: column; gap: 0.6em; }
+  .col-half { max-width: 100%; min-width: 0; }
+  .button-row { flex-direction: column; gap: 0.7em; }
+}
+
 .multiple-fonts-checkbox {
-margin-right: 0.4em;
+  margin-right: 0.25em;
 }
 .multiple-fonts-label {
-color: #aaa;
-font-size: 1.04em;
+  color: #aaa;
+  font-size: 1.01em;
 }
-.multiple-fonts-desc {
-font-size: 0.92em;
-color: #aaa;
-}
-.rename-highpass-row {
-display: flex;
-justify-content: center;
-align-items: center;
-margin-bottom: 0.7em;
-}
+
 .rename-highpass-label {
-color: #aaa;
-font-size: 1.04em;
+  color: #aaa;
+  font-size: 1.01em;
 }
 .rename-highpass-checkbox {
-margin-right: 0.4em;
+  margin-right: 0.25em;
 }
-.rename-button-row {
+/*.rename-button-row {
 display: flex;
 justify-content: center;
+}*/
+
+#audioLog {
+  margin-top: 1em;
+  width: 100%;
+  flex: 1;
+  overflow: auto;
+  background: #23272b;
+  padding: 0.8em;
+  color: #e2e2e2;
+  font-family: 'Fira Mono', monospace;
+  font-size: 0.95em;
+  border-radius: 0.4em;
+  box-shadow: 0 2px 13px #0003, 0 0 4px #29a19c77 inset;
 }
 
 #log {
-  margin-top: 1.5em;
-  margin-left: auto;
-  margin-right: auto;
-  min-width: 50vw;            /* Default minimum width */
-  width: fit-content;         /* Grow to fit content */
-  max-width: 95vw;            /* up to 95% of window */
+  flex: 1 1 auto;
+  min-height: 160px;
+  /*  height: 40vh;              /* Resizes with window! */*/
+  max-height: none;       /* Remove max-height limit */
+  width: 100%;
+  max-width: 90vw;
+  margin: 0 auto 0 auto;
   font-family: 'Fira Mono', 'Consolas', monospace;
   font-size: 1.04em;
   background: #23272b;
-  padding: 1.1em 1.5em;
+  padding: 1.1em 1.5em 2.5em 1.5em;  /* Increased bottom padding */
   border-radius: 0.6em;
-  min-height: 2em;
-  box-shadow: 0 2px 13px #0003;
+  box-shadow: 0 2px 13px #0003, 0 0 4px #29a19c77 inset;
+  overflow: auto;
   word-break: break-word;
+  margin: 0 auto 20px auto;
 }
 
 /* Responsive tweaks */
@@ -199,10 +254,10 @@ justify-content: center;
   h1 { font-size: 1.36em; }
 }
 
-.audio-only-container {
+/*.audio-only-container {
 text-align: center;
 margin-bottom: 1em;
-}
+}*/
 
 /* Audio‑Only Modal Window */
 .audio-only-window {
@@ -266,8 +321,7 @@ margin-bottom: 1em;
     color: #000;
     border: none;
     border-radius: 0.3em;
-    padding: 0.75em 1.5em;
-    font-size: 1em;
+    /* Remove font-size and padding here so .action-btn sets them */
     cursor: pointer;
 }
 .audio-only-button:hover {
@@ -287,6 +341,15 @@ margin-bottom: 1em;
 .convert-audio-button:hover {
     background-color: #2fd4c4;
 }
+
+/*.audio-only-button,
+button:enabled:hover,
+button:enabled:focus {
+  box-shadow:
+    0 2px 13px #0004,
+    0 0 14px #29a19ccf,
+    0 0 8px #29a19c77 inset;
+}*/
 
 /* Footer */
 .footer-title {
@@ -368,4 +431,238 @@ color: #fff;
 #audioHigh:checked + label,
 #audioHigh:checked ~ label {
 color: #fff;
+}
+label:has(input[type="checkbox"]:checked) {
+  color: #fff;
+}
+
+#zippingOverlay {
+  display: none;
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  background: rgba(24, 28, 36, 0.85);
+  color: #ffe066;
+  font-size: 2em;
+  font-family: 'Verdana', monospace;
+  text-align: center;
+  padding-top: 30vh;
+  transition: opacity 0.3s;
+}
+
+#zippingOverlay.active {
+  display: block;
+  opacity: 1;
+}
+
+.zipping-wait-text {
+  font-size: 1.3em;
+  color: #ffe066;
+  display: block;
+  margin-top: 0.5em;
+}
+.custom-dropdown {
+  position: relative;
+  width: 220px;
+  user-select: none;
+  display: inline-block;
+  vertical-align: middle;   /* <-- Align center with file input */
+  margin-top: -1.28em;
+  top: -1px;
+}
+.custom-dropdown-trigger {
+  width: 100%;
+  padding: 0.58em 0.85em;         /* match file input vertical/horizontal */
+  border-radius: 0.3em;
+  border: none;
+  background: #31363b;
+  color: #f6f6f6;
+  font-size: 0.8em;
+  box-shadow: 0 1px 3px #191e23c9, 0 0 4px #29a19c77 inset;
+  cursor: grab;
+  transition: box-shadow 0.18s;
+}
+
+.custom-dropdown-options {
+  display: none;
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 99;
+  background: #31363b;
+  border-radius: 0 0 0.3em 0.3em;
+  box-shadow: 0 4px 16px #0005;
+  max-height: 260px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 1.06em;
+}
+.custom-dropdown.open .custom-dropdown-options {
+  display: block;
+}
+.custom-dropdown-option {
+  padding: 0.62em 1em;
+  color: #e2e2e2;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.top-flex-row {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 3em;
+  margin-bottom: 1.5em;
+  max-width: 970px;   /* Add this! Or adjust to your taste */
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+}
+
+.left-controls {
+  flex: 1 1 340px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 340px;
+  max-width: 440px;
+  margin-left: 3.0em;
+}
+
+
+.right-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 280px;
+  max-width: 340px;
+  gap: 0.7em;
+  margin-top: -0.7em;   /* Try negative to nudge UP */
+  margin-left: 5em;   /* Increase for more right nudge */
+}
+
+.button-row.vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7em;
+  /* Ensure button width matches checkboxes, or is at least consistent */
+  width: 100%;
+}
+
+#renameBtn {
+  min-width: 260px;
+  text-align: left;
+}
+#audioOnlyButton {
+  min-width: 260px;
+  text-align: center;
+}
+
+.checkbox-row {
+  width: 100%;
+}
+
+.checkbox-row input[type="checkbox"] {
+  width: 1.1em;
+  height: 1.1em;
+  accent-color: #29a19c;
+  margin-right: 0.45em;
+  vertical-align: middle;
+}
+
+.left-controls .custom-dropdown-trigger {
+    font-size: 1.14em;
+    width: 100%;
+    min-width: 160px;
+    max-width: 220px;   /* Keep dropdowns same size */
+}
+
+.left-controls .custom-dropdown {
+  width: 220px;  /* Restore your preferred width */
+}
+
+.left-controls {
+  position: relative;
+}
+
+.left-controls input[type="file"] {
+    display: none;
+}
+
+.dropdown-row {
+  display: flex;
+  flex-direction: row;
+  gap: 1.2em;
+  margin-bottom: 0.7em;
+  width: 100%;
+}
+
+
+/* File chooser label (formerly .custom-file-label) styled as a button */
+.file-chooser-label {
+  display: inline-block;
+  width: 405px; /* Match your input[type=file] width! */
+  background: #31363b;
+  color: #f6f6f6;
+  padding: 0.58em 0.85em;
+  border-radius: 0.3em;
+  box-shadow: 0 1px 3px #191e23c9, 0 0 4px #29a19c77 inset;
+  font-size: 1.14em;
+  cursor: pointer;
+  text-align: left;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  transition: background 0.2s, color 0.2s;
+}
+
+.file-chooser-label:hover,
+.file-chooser-label:active {
+  background: #29a19c;
+  color: #000;
+}
+
+.file-chooser-label.disabled,
+.file-chooser-label[aria-disabled="true"] {
+  background: #444;
+  color: #999;
+  cursor: not-allowed;
+  box-shadow: none;
+  pointer-events: none; /* prevent click */
+}
+.file-chooser-label.disabled:hover,
+.file-chooser-label.disabled:active,
+.file-chooser-label[aria-disabled="true"]:hover,
+.file-chooser-label[aria-disabled="true"]:active {
+  background: #444 !important;
+  color: #999 !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
+}
+
+#fileChooserLabelText {
+  display: inline-block;
+  width: 100%;
+  pointer-events: none;
+}
+
+.files-chooser-row {
+  position: relative;
+  width: 405px; /* match label width */
+}
+
+#folderInput input[type="file"] {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 2;
 }
