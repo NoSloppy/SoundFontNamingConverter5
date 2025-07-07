@@ -3,7 +3,23 @@
 **Browser-Based Version**
 
 ---
+### [5.1.0]
 
+**Added / Changed**
+- **Custom dropdown selectors and file chooser:**
+  - Now custom-styled elements to be consistent with the rest of the interface.
+  - No more default browser menu buttons (I'm looking at YOU, Safari!)
+- **Improved layout for workflow:**
+  - Top controls always remain visible, and log messages now display in a scrollable window.
+  - All fonts shown back-to-back Multiple Font conversions, but still each has its own log in zipped folders.
+- **UI alignment and style polish:**
+  - Everything lines up better and button highlights are now consistent. Cool glow, huh?
+
+**Fixed**
+- **Conversion logs for Multiple Fonts:**
+  - Fixed an issue where running Multiple Fonts did not generate Conversion logs inside the downloaded ZIP.
+- **Logging bugs squashed:**
+  - All audio conversion and renaming logs are now clear, consistent, and mirrored in the console.
 ## [5.0.0]
 
 ### **Version 5: Browser-Based Lightning Speed!**
