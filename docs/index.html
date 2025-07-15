@@ -334,7 +334,7 @@
     function checkReady() {
       const sourceVal = sourceBoardEl.value;
       const targetVal = targetBoardEl.value;
-      const comboValid = (sourceVal !== targetVal) && !(sourceVal === 'PROFFIE' && targetVal === 'PROFFIE');
+      const comboValid = (sourceVal !== targetVal) || !(sourceVal === 'PROFFIE' && targetVal === 'PROFFIE');
 
       // Enable file chooser button if combo valid, regardless of files.length
       const chooserEnabled = comboValid && mappingReady;
