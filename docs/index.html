@@ -329,7 +329,8 @@
     const renameHighPassCheckbox = document.getElementById('mainHighPass');
     const multipleFontsCheckbox = document.getElementById('multipleFontsCheckbox');
     const fileLabel = document.querySelector('.file-chooser-label');
-    
+    const fileLabelText = document.getElementById("fileChooserLabelText");
+
     document.addEventListener('DOMContentLoaded', function() {
       checkReady();
     });
@@ -346,7 +347,6 @@
       // keep a local var so our console.log can reference it
       const chooserEnabled = comboValid;
       setFolderChooserEnabled(chooserEnabled);
-      const fileLabelText = document.getElementById("fileChooserLabelText");
       if (comboValid) {
         fileLabelText.textContent = "Choose Folder…";
       } else {
@@ -426,17 +426,6 @@
     // Call for each dropdown, and re-use your mapping reload function
     setupCustomSelect('sourceBoardSelect', 'sourceBoard', autoSelectAndLoadMapping);
     setupCustomSelect('targetBoardSelect', 'targetBoard', autoSelectAndLoadMapping);
-
-    // Custom File Chooser
-    document.getElementById('folderInput').addEventListener('change', function(e) {
-      const label = document.getElementById('fileLabelText');
-      if (this.files.length > 0) {
-        // Show number of files/folders
-        label.textContent = this.files.length + ' file(s) selected';
-      } else {
-        label.textContent = 'Choose Folder...';
-      }
-    });
 
     // Overlay function for zipping
     function showZippingOverlay(show=true) {
@@ -700,12 +689,11 @@
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
         const mainHpSuffix = renameHighPassCheckbox.checked ? '_HP' : '';
-        // let fontSuffix = fontFolderName ? ("_" + fontFolderName) : "";
-        // a.download = `Renamed_${src}_to_${tgt}${fontSuffix}${mainHpSuffix}.zip`;
-let fontSuffix = fontFolderName && !(src === "PROFFIE" && tgt === "PROFFIE" && fontFolderName.toUpperCase() === "PROFFIE")
-  ? ("_" + fontFolderName)
-  : "";
-a.download = `Renamed_${src}_to_${tgt}${fontSuffix}${mainHpSuffix}.zip`;
+
+        let fontSuffix = fontFolderName && !(src === "PROFFIE" && tgt === "PROFFIE" && fontFolderName.toUpperCase() === "PROFFIE")
+          ? ("_" + fontFolderName)
+          : "";
+        a.download = `Renamed_${src}_to_${tgt}${fontSuffix}${mainHpSuffix}.zip`;
         document.body.appendChild(a);
         a.click();
         a.remove();
@@ -840,7 +828,6 @@ a.download = `Renamed_${src}_to_${tgt}${fontSuffix}${mainHpSuffix}.zip`;
 
 
     function setFolderChooserEnabled(enabled) {
-      const fileLabelText = document.getElementById('fileChooserLabelText');
       const label = document.querySelector('.file-chooser-label');
       folderInput.disabled = !enabled;
       if (enabled) {
@@ -851,17 +838,8 @@ a.download = `Renamed_${src}_to_${tgt}${fontSuffix}${mainHpSuffix}.zip`;
         fileLabelText.textContent = 'Choose a valid board combo first...';
       }
     }
-      // Change the label text accordingly:
-      // if (chooserEnabled) {
-        // fileLabelText.textContent = 'Choose Folder...';
-      // } else {
-        // fileLabelText.textContent = 'Choose a valid board combo first...';
-      // }
 
-
-    // Dropdown change handlers
-    // (No longer add 'change' listeners for hidden <input>; handled by custom dropdown logic now)
-    autoSelectAndLoadMapping(); // On page load
+    autoSelectAndLoadMapping();
 
     // Folder/file picker handler
     folderInput.addEventListener('change', (e) => {
@@ -882,38 +860,26 @@ a.download = `Renamed_${src}_to_${tgt}${fontSuffix}${mainHpSuffix}.zip`;
 
 
     multipleFontsCheckbox.addEventListener('change', function() {
-      // Remove any old explanation lines
-      document.querySelectorAll('.multiple-fonts-explainer').forEach(el => el.remove());
-      if (this.checked) {
-        // Insert clear explanation to the log
-        universalLog(
-          logEl,
-          // "Multiple Fonts: Each immediate subfolder of the selected folder will be processed as an individual sound font.",
-          `<span style="color:#ffe066;font-weight:bold">Multiple Fonts <span style="color:red;">ON</span>: Each immediate subfolder of the selected folder will be processed as an individual sound font.<br>
-          If a folder contains multiple font folders and this is <span style="color:red;font-weight:bold">OFF</span>, all fonts within will be merged into one <span style="color:red;font-weight:bold">über font</span>.</span>`,
-          "default",
-          "multiple-fonts-explainer",
-          true  // insert after first line
-        );
-        logEl.scrollTop = 0;
-      }
+      showMultipleFontsExplainer();
     });
 
-    function showMultipleFontsExplainer() {
-      // Only show if checked, and only if not already present
-      if (multipleFontsCheckbox.checked &&
-          !logEl.querySelector('.multiple-fonts-explainer')) {
-        universalLog(
-          logEl,
-          `<span style="color:#ffe066;font-weight:bold">Multiple Fonts <span style="color:red;">ON</span>: Each immediate subfolder of the selected folder will be processed as an individual sound font.<br>
-          If a folder contains multiple font folders and this is <span style="color:red;font-weight:bold">OFF</span>, all fonts within will be merged into one <span style="color:red;font-weight:bold">über font</span>.</span>`,
-          "default",
-          "multiple-fonts-explainer",
-          true
-        );
-        logEl.scrollTop = 0;
-      }
-    }
+function showMultipleFontsExplainer() {
+  // Remove any old explanation lines, always
+  logEl.querySelectorAll('.multiple-fonts-explainer').forEach(el => el.remove());
+
+  // Only show if checked
+  if (multipleFontsCheckbox.checked) {
+    universalLog(
+      logEl,
+      `<span style="color:#ffe066;font-weight:bold">Multiple Fonts <span style="color:red;">ON</span>: Each immediate subfolder of the selected folder will be processed as an individual sound font.<br>
+      If a folder contains multiple font folders and this is <span style="color:red;font-weight:bold">OFF</span>, all fonts within will be merged into one <span style="color:red;font-weight:bold">über font</span>.</span>`,
+      "default",
+      "multiple-fonts-explainer",
+      true
+    );
+    logEl.scrollTop = 0;
+  }
+}
 
     // Rename High-Pass checkbox change logging (add/remove message as needed)
     renameHighPassCheckbox.addEventListener('change', () => {
@@ -1508,25 +1474,20 @@ a.download = `Renamed_${src}_to_${tgt}${fontSuffix}${mainHpSuffix}.zip`;
         fileLogLines.length = 0; // reset plain-text log buffer for this font
         universalLog(logEl, "", "default"); // blank line before header
         logFontHeader(fontFolderName, sourceBoardEl.value, targetBoardEl.value, renameHighPassCheckbox.checked);
-        const ffmpeg = new FFmpeg({ log: true, corePath: './ffmpeg/ffmpeg-core.js' });
+        const ffmpeg = new FFmpeg({ log: true, corePath: './ffmpeg/ffmpeg-core.js', allowMemoryGrowth: true });
         await ffmpeg.load();
         const mainHpSuffix = renameHighPassCheckbox.checked ? '_HP' : '';
-        // const rootBase =
-        //   (targetBoardEl.value.toUpperCase() === 'GOLDEN_HARVEST'
-        //     ? `sound1 - ${fontFolderName}_${targetBoardEl.value}`
-        //     : `${fontFolderName}_${targetBoardEl.value}`);
-        // const rootFolderName = `${rootBase}${mainHpSuffix}`;
-const srcBoard = sourceBoardEl.value.toUpperCase();
-const tgtBoard = targetBoardEl.value.toUpperCase();
-let rootBase;
-if (tgtBoard === "GOLDEN_HARVEST") {
-  rootBase = `sound1 - ${fontFolderName}_${tgtBoard}`;
-} else if (srcBoard === "PROFFIE" && tgtBoard === "PROFFIE") {
-  rootBase = fontFolderName; // don't add _PROFFIE
-} else {
-  rootBase = `${fontFolderName}_${tgtBoard}`;
-}
-const rootFolderName = `${rootBase}${mainHpSuffix}`;
+        const srcBoard = sourceBoardEl.value.toUpperCase();
+        const tgtBoard = targetBoardEl.value.toUpperCase();
+        let rootBase;
+        if (tgtBoard === "GOLDEN_HARVEST") {
+          rootBase = `sound1 - ${fontFolderName}_${tgtBoard}`;
+        } else if (srcBoard === "PROFFIE" && tgtBoard === "PROFFIE") {
+          rootBase = fontFolderName; // don't add _PROFFIE
+        } else {
+          rootBase = `${fontFolderName}_${tgtBoard}`;
+        }
+        const rootFolderName = `${rootBase}${mainHpSuffix}`;
         const fontZip = masterZip;
 
         // Only process files for this font folder
@@ -1615,7 +1576,7 @@ const rootFolderName = `${rootBase}${mainHpSuffix}`;
 
         // === Single font/über font logic (default) ===
         // Always create a new FFmpeg instance per run to reset memory
-        const ffmpeg = new FFmpeg({ log: true, corePath: './ffmpeg/ffmpeg-core.js' });
+        const ffmpeg = new FFmpeg({ log: true, corePath: './ffmpeg/ffmpeg-core.js', allowMemoryGrowth: true });
         await ffmpeg.load();
         // Reset conversion log entries
         conversionLogEntries = [];
@@ -1632,22 +1593,17 @@ const rootFolderName = `${rootBase}${mainHpSuffix}`;
         const zip = new JSZip();
         // Determine root folder name for zip, with optional HP suffix
         const mainHpSuffix = renameHighPassCheckbox.checked ? '_HP' : '';
-        // const rootBase =
-        //   (targetBoardEl.value.toUpperCase() === 'GOLDEN_HARVEST'
-        //     ? `sound1 - ${baseName}_${targetBoardEl.value}`
-        //     : `${baseName}_${targetBoardEl.value}`);
-        // const rootFolderName = `${rootBase}${mainHpSuffix}`;
-const srcBoard = sourceBoardEl.value.toUpperCase();
-const tgtBoard = targetBoardEl.value.toUpperCase();
-let rootBase;
-if (tgtBoard === "GOLDEN_HARVEST") {
-  rootBase = `sound1 - ${baseName}_${tgtBoard}`;
-} else if (srcBoard === "PROFFIE" && tgtBoard === "PROFFIE") {
-  rootBase = baseName; // don't add _PROFFIE
-} else {
-  rootBase = `${baseName}_${tgtBoard}`;
-}
-const rootFolderName = `${rootBase}${mainHpSuffix}`;
+        const srcBoard = sourceBoardEl.value.toUpperCase();
+        const tgtBoard = targetBoardEl.value.toUpperCase();
+        let rootBase;
+        if (tgtBoard === "GOLDEN_HARVEST") {
+          rootBase = `sound1 - ${baseName}_${tgtBoard}`;
+        } else if (srcBoard === "PROFFIE" && tgtBoard === "PROFFIE") {
+          rootBase = baseName; // don't add _PROFFIE
+        } else {
+          rootBase = `${baseName}_${tgtBoard}`;
+        }
+        const rootFolderName = `${rootBase}${mainHpSuffix}`;
 
         // Use shared audio processing helper (no logFn for rename)
         files = await processAudioFiles({
@@ -1744,10 +1700,7 @@ const rootFolderName = `${rootBase}${mainHpSuffix}`;
         // Add blank line before any moved/converted file logs
         universalLog(audioLogEl, "", "default");
         // Patch: Set corePath to ffmpeg/ffmpeg-core.js so FFmpegWASM finds the WASM binary
-        const ffmpeg = new FFmpeg({
-          log: true,
-          corePath: './ffmpeg/ffmpeg-core.js'
-        });
+        const ffmpeg = new FFmpeg({ log: true, corePath: './ffmpeg/ffmpeg-core.js', allowMemoryGrowth: true });
         await ffmpeg.load();
         // Create the zip object immediately after ffmpeg.load()
         const zip = new JSZip();
