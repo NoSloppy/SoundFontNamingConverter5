@@ -3,6 +3,12 @@
 **Browser-Based Version**
 
 ---
+### [5.1.1]
+
+**Fixed**
+- **File chooser enabled for Proffieboard → Proffieboard:**
+  - Now allows organizing/optimizing a ProffieOS font for FAT32 when both source and target are Proffieboard.
+
 ### [5.1.0]
 
 **Added / Changed**
