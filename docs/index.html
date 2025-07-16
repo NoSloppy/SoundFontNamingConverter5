@@ -334,19 +334,19 @@
     function checkReady() {
       const sourceVal = sourceBoardEl.value;
       const targetVal = targetBoardEl.value;
-      const comboValid = (sourceVal !== targetVal) || !(sourceVal === 'PROFFIE' && targetVal === 'PROFFIE');
-
-      // Enable file chooser button if combo valid, regardless of files.length
-      const chooserEnabled = comboValid && mappingReady;
-
+      // valid if boards differ, or special Proffie→Proffie case
+      const comboValid =
+        sourceVal !== targetVal ||
+        (sourceVal === 'PROFFIE' && targetVal === 'PROFFIE');
+    
+      // keep a local var so our console.log can reference it
+      const chooserEnabled = comboValid;
       setFolderChooserEnabled(chooserEnabled);
-
-      // Change the label text accordingly:
-      const fileLabelText = document.getElementById('fileChooserLabelText');
-      if (chooserEnabled) {
-        fileLabelText.textContent = 'Choose Folder...';
+      const fileLabelText = document.getElementById("fileChooserLabelText");
+      if (comboValid) {
+        fileLabelText.textContent = "Choose Folder…";
       } else {
-        fileLabelText.textContent = 'Choose a valid board combo first...';
+        fileLabelText.textContent = "Choose a valid board combo first…";
       }
 
       // Enable rename only if files selected + combo valid + mapping ready
@@ -355,7 +355,7 @@
 
       console.log('chooserEnabled:', chooserEnabled, 'renameEnabled:', renameEnabled, 'files.length:', files.length);
     }
-    
+
     // --- Custom Dropdown Logic ---
     function setupCustomSelect(containerId, inputId, onChange) {
       const select = document.getElementById(containerId);
@@ -773,12 +773,15 @@
          universalLog(logEl,"Proffieboard to Proffieboard organizes and renames a ProffieOS sound font for best FAT32 performance.", "info");
           mapping = {};
           mappingReady = true;
+          setFolderChooserEnabled(true);
+          document.getElementById("fileChooserLabelText").textContent = "Choose Folder…";
           folderInput.disabled = false;
           checkReady();
           // Add high-pass message if enabled
           if (renameHighPassCheckbox.checked) logHighPass(logEl, true);
         } else {
          universalLog(logEl,`Renaming from ${src} → ${tgt} is unnecessary.`, "info");
+        setFolderChooserEnabled(false);
         }
         return;
       }
@@ -829,15 +832,24 @@
 
 
     function setFolderChooserEnabled(enabled) {
-  console.log('setFolderChooserEnabled called with', enabled);
-      folderInput.disabled = !enabled;
+      const fileLabelText = document.getElementById('fileChooserLabelText');
       const label = document.querySelector('.file-chooser-label');
+      folderInput.disabled = !enabled;
       if (enabled) {
         label.classList.remove('disabled');
+        fileLabelText.textContent = 'Choose Folder...';
       } else {
         label.classList.add('disabled');
+        fileLabelText.textContent = 'Choose a valid board combo first...';
       }
     }
+      // Change the label text accordingly:
+      // if (chooserEnabled) {
+        // fileLabelText.textContent = 'Choose Folder...';
+      // } else {
+        // fileLabelText.textContent = 'Choose a valid board combo first...';
+      // }
+
 
     // Dropdown change handlers
     // (No longer add 'change' listeners for hidden <input>; handled by custom dropdown logic now)
