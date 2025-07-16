@@ -6,8 +6,7 @@
 ### [5.1.1]
 
 **Fixed**
-- **File chooser enabled for Proffieboard → Proffieboard:**
-  - Now allows organizing/optimizing a ProffieOS font for FAT32 when both source and target are Proffieboard.
+  - File chooser button is now enabled for Proffieboard → Proffieboard conversions as intended..
 
 ### [5.1.0]
 

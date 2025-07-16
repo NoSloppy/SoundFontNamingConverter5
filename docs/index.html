@@ -700,8 +700,12 @@
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
         const mainHpSuffix = renameHighPassCheckbox.checked ? '_HP' : '';
-        let fontSuffix = fontFolderName ? ("_" + fontFolderName) : "";
-        a.download = `Renamed_${src}_to_${tgt}${fontSuffix}${mainHpSuffix}.zip`;
+        // let fontSuffix = fontFolderName ? ("_" + fontFolderName) : "";
+        // a.download = `Renamed_${src}_to_${tgt}${fontSuffix}${mainHpSuffix}.zip`;
+let fontSuffix = fontFolderName && !(src === "PROFFIE" && tgt === "PROFFIE" && fontFolderName.toUpperCase() === "PROFFIE")
+  ? ("_" + fontFolderName)
+  : "";
+a.download = `Renamed_${src}_to_${tgt}${fontSuffix}${mainHpSuffix}.zip`;
         document.body.appendChild(a);
         a.click();
         a.remove();
@@ -1507,11 +1511,22 @@
         const ffmpeg = new FFmpeg({ log: true, corePath: './ffmpeg/ffmpeg-core.js' });
         await ffmpeg.load();
         const mainHpSuffix = renameHighPassCheckbox.checked ? '_HP' : '';
-        const rootBase =
-          (targetBoardEl.value.toUpperCase() === 'GOLDEN_HARVEST'
-            ? `sound1 - ${fontFolderName}_${targetBoardEl.value}`
-            : `${fontFolderName}_${targetBoardEl.value}`);
-        const rootFolderName = `${rootBase}${mainHpSuffix}`;
+        // const rootBase =
+        //   (targetBoardEl.value.toUpperCase() === 'GOLDEN_HARVEST'
+        //     ? `sound1 - ${fontFolderName}_${targetBoardEl.value}`
+        //     : `${fontFolderName}_${targetBoardEl.value}`);
+        // const rootFolderName = `${rootBase}${mainHpSuffix}`;
+const srcBoard = sourceBoardEl.value.toUpperCase();
+const tgtBoard = targetBoardEl.value.toUpperCase();
+let rootBase;
+if (tgtBoard === "GOLDEN_HARVEST") {
+  rootBase = `sound1 - ${fontFolderName}_${tgtBoard}`;
+} else if (srcBoard === "PROFFIE" && tgtBoard === "PROFFIE") {
+  rootBase = fontFolderName; // don't add _PROFFIE
+} else {
+  rootBase = `${fontFolderName}_${tgtBoard}`;
+}
+const rootFolderName = `${rootBase}${mainHpSuffix}`;
         const fontZip = masterZip;
 
         // Only process files for this font folder
@@ -1617,11 +1632,22 @@
         const zip = new JSZip();
         // Determine root folder name for zip, with optional HP suffix
         const mainHpSuffix = renameHighPassCheckbox.checked ? '_HP' : '';
-        const rootBase =
-          (targetBoardEl.value.toUpperCase() === 'GOLDEN_HARVEST'
-            ? `sound1 - ${baseName}_${targetBoardEl.value}`
-            : `${baseName}_${targetBoardEl.value}`);
-        const rootFolderName = `${rootBase}${mainHpSuffix}`;
+        // const rootBase =
+        //   (targetBoardEl.value.toUpperCase() === 'GOLDEN_HARVEST'
+        //     ? `sound1 - ${baseName}_${targetBoardEl.value}`
+        //     : `${baseName}_${targetBoardEl.value}`);
+        // const rootFolderName = `${rootBase}${mainHpSuffix}`;
+const srcBoard = sourceBoardEl.value.toUpperCase();
+const tgtBoard = targetBoardEl.value.toUpperCase();
+let rootBase;
+if (tgtBoard === "GOLDEN_HARVEST") {
+  rootBase = `sound1 - ${baseName}_${tgtBoard}`;
+} else if (srcBoard === "PROFFIE" && tgtBoard === "PROFFIE") {
+  rootBase = baseName; // don't add _PROFFIE
+} else {
+  rootBase = `${baseName}_${tgtBoard}`;
+}
+const rootFolderName = `${rootBase}${mainHpSuffix}`;
 
         // Use shared audio processing helper (no logFn for rename)
         files = await processAudioFiles({
