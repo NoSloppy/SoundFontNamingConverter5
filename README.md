@@ -3,6 +3,11 @@
 **Browser-Based Version**
 
 ---
+### [5.1.2]
+
+**Fixed**
+  - Restored missing config.ini and smoothsw.ini auto-addition for Proffie→Proffie conversions.
+
 ### [5.1.1]
 
 **Fixed**
