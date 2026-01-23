@@ -1072,11 +1072,11 @@ function showMultipleFontsExplainer() {
       let hasConfigIni = false;
       let hasSmoothswIni = false;
       for (const f of files) {
-        const pathLower = f.webkitRelativePath.toLowerCase();
-        if (f.name.toLowerCase() === 'config.ini' || pathLower.endsWith('/config.ini')) {
+        const nameLower = f.name.toLowerCase();
+        if (nameLower === 'config.ini') {
           hasConfigIni = true;
         }
-        if (f.name.toLowerCase() === 'smoothsw.ini' || pathLower.endsWith('/smoothsw.ini')) {
+        if (nameLower === 'smoothsw.ini') {
           hasSmoothswIni = true;
         }
         if (hasConfigIni && hasSmoothswIni) break;
