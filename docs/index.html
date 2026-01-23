@@ -1069,8 +1069,18 @@ function showMultipleFontsExplainer() {
       
       // Add missing default config.ini and smoothsw.ini files
       // Check for these files at any level in the folder structure
-      const hasConfigIni = files.some(f => f.name.toLowerCase() === 'config.ini' || f.webkitRelativePath.toLowerCase().includes('config.ini'));
-      const hasSmoothswIni = files.some(f => f.name.toLowerCase() === 'smoothsw.ini' || f.webkitRelativePath.toLowerCase().includes('smoothsw.ini'));
+      let hasConfigIni = false;
+      let hasSmoothswIni = false;
+      for (const f of files) {
+        const pathLower = f.webkitRelativePath.toLowerCase();
+        if (f.name.toLowerCase() === 'config.ini' || pathLower.endsWith('/config.ini')) {
+          hasConfigIni = true;
+        }
+        if (f.name.toLowerCase() === 'smoothsw.ini' || pathLower.endsWith('/smoothsw.ini')) {
+          hasSmoothswIni = true;
+        }
+        if (hasConfigIni && hasSmoothswIni) break;
+      }
       
       if (!hasConfigIni) {
         try {
