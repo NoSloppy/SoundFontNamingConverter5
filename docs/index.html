@@ -1066,6 +1066,51 @@ function showMultipleFontsExplainer() {
           }
         }
       }
+      
+      // Add missing default config.ini and smoothsw.ini files
+      // Check for these files at any level in the folder structure
+      let hasConfigIni = false;
+      let hasSmoothswIni = false;
+      for (const f of files) {
+        const nameLower = f.name.toLowerCase();
+        if (nameLower === 'config.ini') {
+          hasConfigIni = true;
+        }
+        if (nameLower === 'smoothsw.ini') {
+          hasSmoothswIni = true;
+        }
+        if (hasConfigIni && hasSmoothswIni) break;
+      }
+      
+      if (!hasConfigIni) {
+        try {
+          const resp = await fetch('inis/config.ini');
+          if (resp.ok) {
+            const content = await resp.text();
+            zip.file(`${rootFolderName}/config.ini`, content);
+            universalLog(logEl, `Added default <span style="color:#9f6">config.ini</span>`, 'info');
+            conversionLogEntries.push('Added default config.ini');
+          }
+        } catch (err) {
+          console.error('Failed to load default config.ini:', err);
+          universalLog(logEl, 'Warning: Could not load default config.ini', 'warn');
+        }
+      }
+      
+      if (!hasSmoothswIni) {
+        try {
+          const resp = await fetch('inis/smoothsw.ini');
+          if (resp.ok) {
+            const content = await resp.text();
+            zip.file(`${rootFolderName}/smoothsw.ini`, content);
+            universalLog(logEl, `Added default <span style="color:#9f6">smoothsw.ini</span>`, 'info');
+            conversionLogEntries.push('Added default smoothsw.ini');
+          }
+        } catch (err) {
+          console.error('Failed to load default smoothsw.ini:', err);
+          universalLog(logEl, 'Warning: Could not load default smoothsw.ini', 'warn');
+        }
+      }
     }
 
     // --- CFX Organizer ---
