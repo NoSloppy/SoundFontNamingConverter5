@@ -1066,6 +1066,38 @@ function showMultipleFontsExplainer() {
           }
         }
       }
+      
+      // Add missing default config.ini and smoothsw.ini files
+      const hasConfigIni = files.some(f => f.name.toLowerCase() === 'config.ini');
+      const hasSmoothswIni = files.some(f => f.name.toLowerCase() === 'smoothsw.ini');
+      
+      if (!hasConfigIni) {
+        try {
+          const resp = await fetch('inis/config.ini');
+          if (resp.ok) {
+            const content = await resp.text();
+            zip.file(`${rootFolderName}/config.ini`, content);
+            universalLog(logEl, `Added default <span style="color:#9f6">config.ini</span>`, 'info');
+            conversionLogEntries.push('Added default config.ini');
+          }
+        } catch (err) {
+          console.error('Failed to load default config.ini:', err);
+        }
+      }
+      
+      if (!hasSmoothswIni) {
+        try {
+          const resp = await fetch('inis/smoothsw.ini');
+          if (resp.ok) {
+            const content = await resp.text();
+            zip.file(`${rootFolderName}/smoothsw.ini`, content);
+            universalLog(logEl, `Added default <span style="color:#9f6">smoothsw.ini</span>`, 'info');
+            conversionLogEntries.push('Added default smoothsw.ini');
+          }
+        } catch (err) {
+          console.error('Failed to load default smoothsw.ini:', err);
+        }
+      }
     }
 
     // --- CFX Organizer ---
