@@ -16,6 +16,10 @@
     <div id="popupContent">
         <h2>Version Changelog</h2>
 
+        <p>[5.2.0]<br>
+          <strong>Added</strong><br>
+          &bull; Added Asteria as a source and target board option, including its folder-based naming and smoothswing file handling.<br>
+        </p>
         <p>[5.1.2]<br>
           <strong>Fixed</strong><br>
           &bull; Proffie conversions preserve existing <code>config.ini</code> and <code>smoothsw.ini</code> files if the font already had them instead of overwriting them with defaults.<br>
@@ -174,7 +178,7 @@
   <input type="hidden" name="sourceBoard" id="sourceBoard" value="CFX">
   <input type="hidden" name="targetBoard" id="targetBoard" value="CFX">
   <div class="main-content">
-    <h1>SoundFontNamingConverter MVP <span style="color:#fff;font-size:0.62em;"> Version 5.1.2 </span></h1>
+    <h1>SoundFontNamingConverter MVP <span style="color:#fff;font-size:0.62em;"> Version 5.2.0 </span></h1>
     <div class="top-flex-row">
       <!-- LEFT SIDE -->
       <div class="left-controls">
@@ -185,6 +189,7 @@
             <ul class="custom-dropdown-options">
               <li class="custom-dropdown-option selected" data-value="PROFFIE">Proffieboard</li>
               <li class="custom-dropdown-option" data-value="CFX">CFX</li>
+              <li class="custom-dropdown-option" data-value="ASTERIA">Asteria</li>
               <li class="custom-dropdown-option" data-value="VERSO">Verso</li>
               <li class="custom-dropdown-option" data-value="XENO3">Xeno3</li>
               <li class="custom-dropdown-option" data-value="GOLDEN_HARVEST">Golden Harvest</li>
@@ -195,6 +200,7 @@
             <ul class="custom-dropdown-options">
               <li class="custom-dropdown-option selected" data-value="PROFFIE">Proffieboard</li>
               <li class="custom-dropdown-option" data-value="CFX">CFX</li>
+              <li class="custom-dropdown-option" data-value="ASTERIA">Asteria</li>
               <li class="custom-dropdown-option" data-value="VERSO">Verso</li>
               <li class="custom-dropdown-option" data-value="XENO3">Xeno3</li>
               <li class="custom-dropdown-option" data-value="GOLDEN_HARVEST">Golden Harvest</li>
@@ -277,7 +283,9 @@
     // Mapping CSV URLs for every board combo
     const CSV_URLS = {
       "CFX_TO_PROFFIE":             "CSV/CFX_TO_PROFFIE.csv",
+      "ASTERIA_TO_PROFFIE":         "CSV/ASTERIA_TO_PROFFIE.csv",
       "GOLDEN_HARVEST_TO_PROFFIE":   "CSV/GOLDEN_HARVEST_TO_PROFFIE.csv",
+      "PROFFIE_TO_ASTERIA":         "CSV/PROFFIE_TO_ASTERIA.csv",
       "PROFFIE_TO_CFX":             "CSV/PROFFIE_TO_CFX.csv",
       "PROFFIE_TO_GOLDEN_HARVEST":  "CSV/PROFFIE_TO_GOLDEN_HARVEST.csv",
       "PROFFIE_TO_VERSO":           "CSV/PROFFIE_TO_VERSO.csv",
@@ -614,6 +622,47 @@
         if (!reverse[v]) reverse[v] = k;
       }
       return reverse;
+    }
+
+    function getRelativeParts(file) {
+      const rel = file._original || file.webkitRelativePath || file.name || '';
+      return rel.split('/').filter(Boolean);
+    }
+
+    function getParentFolderName(file) {
+      const parts = getRelativeParts(file);
+      return parts.length > 1 ? parts[parts.length - 2] : '';
+    }
+
+    function getSourceMappingKey(file) {
+      const rawName = (file.name || '').toLowerCase();
+      const parent = getParentFolderName(file).toLowerCase();
+      const srcBoard = sourceBoardEl.value.toUpperCase();
+
+      if (srcBoard === 'ASTERIA') {
+        if (/^bankswitch\d*\.wav$/i.test(rawName)) return 'bankswitch.wav';
+        if (parent === 'blaster' && /^blaster\d*\.wav$/i.test(rawName)) return 'blaster.wav';
+        if (parent === 'clash' && /^clash\d+\.wav$/i.test(rawName)) return 'clash.wav';
+        if (parent === 'drag' && /^drag\d*\.wav$/i.test(rawName)) return 'drag.wav';
+        if (parent === 'hum' && /^humm?\d*\.wav$/i.test(rawName)) return 'humm.wav';
+        if (parent === 'hyswing' && /^swing\d+\.wav$/i.test(rawName)) return 'swing.wav';
+        if (parent === 'in' && rawName === 'pwroff2.wav') return 'pwroff2.wav';
+        if (parent === 'in' && /^poweroff\d*\.wav$/i.test(rawName)) return 'poweroff.wav';
+        if (parent === 'lockup' && /^lockup\d*\.wav$/i.test(rawName)) return 'lockup.wav';
+        if (parent === 'out' && /^poweron\d*\.wav$/i.test(rawName)) return 'poweron.wav';
+        if (parent === 'swing' && /^sw\d+_h\.wav$/i.test(rawName)) return 'swingh.wav';
+        if (parent === 'swing' && /^sw\d+_l\.wav$/i.test(rawName)) return 'swingl.wav';
+      }
+
+      return rawName.replace(/(?:\s*\(\d+\)|\d+)\.wav$/i, '.wav');
+    }
+
+    function getOrganizerMappingKey(file) {
+      if (/^\d+\.wav$/i.test(file.name)) {
+        const parent = getParentFolderName(file).toLowerCase();
+        if (parent) return `${parent}.wav`;
+      }
+      return getSourceMappingKey(file);
     }
 
     // === Utility: single call to add to zip, conversionLogEntries, and log in one go ===
@@ -1023,12 +1072,12 @@ function showMultipleFontsExplainer() {
       for (const file of files) {
         if (file.name.startsWith('.') || !file.name.toLowerCase().endsWith('.wav')) continue;
         const nameLower = file.name.toLowerCase();
-        const relParts = file.webkitRelativePath.split('/');
+        const relParts = getRelativeParts(file);
         let baseNameForGroup;
         if (/^\d+\.wav$/i.test(file.name) && relParts.length > 1) {
-          baseNameForGroup = relParts[1].toLowerCase() + '.wav';
+          baseNameForGroup = relParts[relParts.length - 2].toLowerCase() + '.wav';
         } else {
-          baseNameForGroup = nameLower.replace(/(?:\s*\(\d+\)|\d+)\.wav$/i, '.wav');
+          baseNameForGroup = getSourceMappingKey(file);
         }
         const mapped = applyMapping(baseNameForGroup);
         const base = mapped.replace(/\.wav$/, '');
@@ -1124,9 +1173,7 @@ function showMultipleFontsExplainer() {
           continue;
         }
         // Map Proffie filenames to CFX names using the mapping object
-        const origLower = file.name.toLowerCase();
-        // Strip numeric suffixes for grouping (e.g. "boot01.wav" → "boot.wav")
-        const keyForMapping = origLower.replace(/(\d+)\.wav$/i, '.wav');
+        const keyForMapping = getOrganizerMappingKey(file);
         // Apply mapping on stripped key, fallback to stripped key
         const mappedName = (typeof mapping === "function")
           ? mapping(keyForMapping)
@@ -1217,7 +1264,7 @@ function showMultipleFontsExplainer() {
       const filesByBase = {};
       for (const file of files) {
         if (!file.name.toLowerCase().endsWith('.wav') || file.name.startsWith('.')) continue;
-        const key = file.name.toLowerCase().replace(/(\d+)\.wav$/i, '.wav');
+        const key = getOrganizerMappingKey(file);
         const mapped = (typeof mapping === "function")
           ? mapping(key)
           : (mapping[key] || key);
@@ -1282,7 +1329,7 @@ function showMultipleFontsExplainer() {
       const fileNameCounter = {};
       for (const file of files) {
         if (!file.name.toLowerCase().endsWith('.wav') || file.name.startsWith('.')) continue;
-        const key = file.name.toLowerCase().replace(/(\d+)\.wav$/i, '.wav');
+        const key = getOrganizerMappingKey(file);
         const mapped = (typeof mapping === "function")
           ? mapping(key)
           : (mapping[key] || key);
@@ -1319,7 +1366,7 @@ function showMultipleFontsExplainer() {
         if (file.name.startsWith('.') || !file.name.toLowerCase().endsWith('.wav')) continue;
         // strip any numeric suffix or parenthesized number for mapping
         const nameLower = file.name.toLowerCase();
-        const cleanName = nameLower.replace(/(?:\s*\(\d+\)|\d+)\.wav$/i, '.wav');
+        const cleanName = getOrganizerMappingKey(file);
         // apply mapping to cleaned name
         let mappedWav;
         if (typeof mapping === 'function') {
@@ -1336,6 +1383,96 @@ function showMultipleFontsExplainer() {
         const outName = `${base} (${count}).wav`;
         const zipPath = `${rootFolderName}/${outName}`;
         addZipEntry(zip, file, zipPath);
+      }
+    }
+
+    // --- ASTERIA Organizer ---
+    function ASTERIAOrganizer(files, mapping, rootFolderName, zip, log, conversionLogEntries) {
+      const fileNameCounter = {};
+      for (const file of files) {
+        if (!file.name.toLowerCase().endsWith('.wav') || file.name.startsWith('.')) continue;
+
+        const keyForMapping = getOrganizerMappingKey(file);
+        const mappedName = (typeof mapping === "function")
+          ? mapping(keyForMapping)
+          : (mapping[keyForMapping] || keyForMapping);
+        const baseKey = mappedName.replace(/\.wav$/i, '');
+        const counter = fileNameCounter[baseKey] || 1;
+        let zipPath;
+
+        switch (baseKey) {
+          case "font":
+            zipPath = `${rootFolderName}/${counter === 1 ? 'bankswitch.wav' : `bankswitch${counter}.wav`}`;
+            break;
+
+          case "poweroff":
+            if (counter === 1) {
+              addZipEntry(zip, file, `${rootFolderName}/In/poweroff.wav`);
+              const dashMsgCreate = "- Also create In/pwroff2.wav";
+              universalLog(logEl, dashMsgCreate, "info");
+              conversionLogEntries.push(dashMsgCreate);
+              zip.file(`${rootFolderName}/In/pwroff2.wav`, file);
+              const srcPathCreate = file._original || file.webkitRelativePath;
+              universalLog(logEl, `Created: <span style="color:#fff">${srcPathCreate}</span> <span style="color:#ff0">→</span> <span style="color:#9f6">${rootFolderName}/In/pwroff2.wav</span>`);
+              conversionLogEntries.push(`Created: ${srcPathCreate} -> ${rootFolderName}/In/pwroff2.wav`);
+            } else if (counter === 2) {
+              const dashMsgUpdate = "- Updated In/pwroff2.wav";
+              universalLog(logEl, dashMsgUpdate, "info");
+              conversionLogEntries.push(dashMsgUpdate);
+              zip.file(`${rootFolderName}/In/pwroff2.wav`, file);
+              const srcPathUpdate = file._original || file.webkitRelativePath;
+              universalLog(logEl, `Renamed: <span style="color:#fff">${srcPathUpdate}</span> <span style="color:#ff0">→</span> <span style="color:#9f6">${rootFolderName}/In/pwroff2.wav</span>`);
+              conversionLogEntries.push(`Renamed: ${srcPathUpdate} -> ${rootFolderName}/In/pwroff2.wav`);
+            } else {
+              addZipEntry(zip, file, `${rootFolderName}/In/poweroff${counter - 1}.wav`);
+            }
+            fileNameCounter[baseKey] = counter + 1;
+            continue;
+
+          case "poweron":
+            zipPath = `${rootFolderName}/Out/${counter === 1 ? 'poweron.wav' : `poweron${counter}.wav`}`;
+            break;
+
+          case "blaster":
+            zipPath = `${rootFolderName}/Blaster/${counter === 1 ? 'blaster.wav' : `blaster${counter}.wav`}`;
+            break;
+
+          case "clash":
+            zipPath = `${rootFolderName}/Clash/clash${counter}.wav`;
+            break;
+
+          case "drag":
+            zipPath = `${rootFolderName}/Drag/${counter === 1 ? 'drag.wav' : `drag${counter}.wav`}`;
+            break;
+
+          case "hum":
+          case "humm":
+            zipPath = `${rootFolderName}/Hum/humm${counter}.wav`;
+            break;
+
+          case "lockup":
+            zipPath = `${rootFolderName}/Lockup/${counter === 1 ? 'lockup.wav' : `lockup${counter}.wav`}`;
+            break;
+
+          case "swing":
+            zipPath = `${rootFolderName}/Hyswing/swing${counter}.wav`;
+            break;
+
+          case "swingh":
+            zipPath = `${rootFolderName}/Swing/SW${String(counter).padStart(2, '0')}_H.wav`;
+            break;
+
+          case "swingl":
+            zipPath = `${rootFolderName}/Swing/SW${String(counter).padStart(2, '0')}_L.wav`;
+            break;
+
+          default:
+            zipPath = `${rootFolderName}/${counter === 1 ? `${baseKey}.wav` : `${baseKey}${counter}.wav`}`;
+            break;
+        }
+
+        addZipEntry(zip, file, zipPath);
+        fileNameCounter[baseKey] = counter + 1;
       }
     }
 
@@ -1554,6 +1691,8 @@ function showMultipleFontsExplainer() {
           await fat32ProffieOrganizer(coreFiles, mapping, rootFolderName, fontZip, log, conversionLogEntries, hasConfigIni, hasSmoothswIni);
         } else if (tgt === "CFX") {
           await CFXOrganizer(coreFiles, mapping, rootFolderName, fontZip, log, conversionLogEntries);
+        } else if (tgt === "ASTERIA") {
+          await ASTERIAOrganizer(coreFiles, mapping, rootFolderName, fontZip, log, conversionLogEntries);
         } else if (tgt === "VERSO") {
           await VERSOOrganizer(coreFiles, mapping, rootFolderName, fontZip, log, conversionLogEntries);
         } else if (tgt === "GOLDEN_HARVEST") {
@@ -1664,6 +1803,9 @@ function showMultipleFontsExplainer() {
           await finalizeAndDownloadWithOverlay(src, tgt, zip, rootFolderName);
         } else if (tgt === "CFX") {
           await CFXOrganizer(coreFiles, mapping, rootFolderName, zip, log, conversionLogEntries);
+          await finalizeAndDownloadWithOverlay(src, tgt, zip, rootFolderName);
+        } else if (tgt === "ASTERIA") {
+          await ASTERIAOrganizer(coreFiles, mapping, rootFolderName, zip, log, conversionLogEntries);
           await finalizeAndDownloadWithOverlay(src, tgt, zip, rootFolderName);
         } else if (tgt === "VERSO") {
           await VERSOOrganizer(coreFiles, mapping, rootFolderName, zip, log, conversionLogEntries);
