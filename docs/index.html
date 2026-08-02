@@ -711,6 +711,8 @@
      */
     async function handleExtrasAndTracks(files, zip, log, conversionLogEntries, rootFolderName) {
       const remaining = [];
+      let hasConfigIni = false;
+      let hasSmoothswIni = false;
       const root = rootFolderName;
       for (const file of files) {
         if (file.name.startsWith('.')) continue;
@@ -719,6 +721,8 @@
         const rel = file._original || file.webkitRelativePath;
         // 1) Non-wav files: copy any non-wav (e.g., .ini, .bmp) to root
         if (!nameLower.endsWith('.wav')) {
+          if (nameLower === 'config.ini')   hasConfigIni   = true;
+          if (nameLower === 'smoothsw.ini') hasSmoothswIni = true;
           const zipPath = `${root}/${file.name}`;
           zip.file(zipPath, file);
          universalLog(logEl,`<span style="color:#99fff5">- Moved non-wav file:</span> <span style="color:#fff">${rel}</span> <span style="color:#ff0">→</span> <span style="color:#9f6">${zipPath}</span>`);
@@ -748,7 +752,7 @@
         // Otherwise, leave for board-specific processing
         remaining.push(file);
       }
-      return remaining;
+      return { remaining, hasConfigIni, hasSmoothswIni };
     }
 
     // Load CSV mapping as soon as both dropdowns are selected
@@ -887,7 +891,7 @@ function showMultipleFontsExplainer() {
       if (renameHighPassCheckbox.checked) logHighPass(logEl, true);
     });
 
-   async function fat32ProffieOrganizer(files, mapping, rootFolderName, zip, log, conversionLogEntries) {
+   async function fat32ProffieOrganizer(files, mapping, rootFolderName, zip, log, conversionLogEntries, hasConfigIni = false, hasSmoothswIni = false) {
       // === Proffie altXXX folders support ===
       // collect any files under alt000, alt001, etc.
       const altFiles = files.filter(f => {
@@ -1068,19 +1072,6 @@ function showMultipleFontsExplainer() {
       }
       
       // Add missing default config.ini and smoothsw.ini files
-      // Check for these files at any level in the folder structure
-      let hasConfigIni = false;
-      let hasSmoothswIni = false;
-      for (const f of files) {
-        const nameLower = f.name.toLowerCase();
-        if (nameLower === 'config.ini') {
-          hasConfigIni = true;
-        }
-        if (nameLower === 'smoothsw.ini') {
-          hasSmoothswIni = true;
-        }
-        if (hasConfigIni && hasSmoothswIni) break;
-      }
       
       if (!hasConfigIni) {
         try {
@@ -1549,14 +1540,14 @@ function showMultipleFontsExplainer() {
         });
 
         // Pre-process extras/tracks/non-wavs for this font
-        let coreFiles = await handleExtrasAndTracks(processedFiles, fontZip, log, conversionLogEntries, rootFolderName);
+        let { remaining: coreFiles, hasConfigIni, hasSmoothswIni } = await handleExtrasAndTracks(processedFiles, fontZip, log, conversionLogEntries, rootFolderName);
 
         // Board-specific logic (same as before, but all use fontZip now)
         const src = sourceBoardEl.value.toUpperCase();
         const tgt = targetBoardEl.value.toUpperCase();
 
         if (src === "PROFFIE" && tgt === "PROFFIE") {
-          await fat32ProffieOrganizer(coreFiles, mapping, rootFolderName, fontZip, log, conversionLogEntries);
+          await fat32ProffieOrganizer(coreFiles, mapping, rootFolderName, fontZip, log, conversionLogEntries, hasConfigIni, hasSmoothswIni);
         } else if (tgt === "CFX") {
           await CFXOrganizer(coreFiles, mapping, rootFolderName, fontZip, log, conversionLogEntries);
         } else if (tgt === "VERSO") {
@@ -1566,7 +1557,7 @@ function showMultipleFontsExplainer() {
         } else if (tgt === "XENO3") {
           await XENO3Organizer(coreFiles, mapping, rootFolderName, fontZip, log, conversionLogEntries);
         } else if (tgt === "PROFFIE") {
-          await fat32ProffieOrganizer(coreFiles, mapping, rootFolderName, fontZip, log, conversionLogEntries);
+          await fat32ProffieOrganizer(coreFiles, mapping, rootFolderName, fontZip, log, conversionLogEntries, hasConfigIni, hasSmoothswIni);
         }
 
         // Write this font’s conversion log to the ZIP from unified logger
@@ -1658,14 +1649,14 @@ function showMultipleFontsExplainer() {
         });
 
         // Pre-process extras, tracks, and non-wavs
-        let coreFiles = await handleExtrasAndTracks(files, zip, log, conversionLogEntries, rootFolderName);
+        let { remaining: coreFiles, hasConfigIni, hasSmoothswIni } = await handleExtrasAndTracks(files, zip, log, conversionLogEntries, rootFolderName);
 
         // Board-specific logic
         const src = sourceBoardEl.value.toUpperCase();
         const tgt = targetBoardEl.value.toUpperCase();
 
         if (src === "PROFFIE" && tgt === "PROFFIE") {
-          await fat32ProffieOrganizer(coreFiles, mapping, rootFolderName, zip, log, conversionLogEntries);
+          await fat32ProffieOrganizer(coreFiles, mapping, rootFolderName, zip, log, conversionLogEntries, hasConfigIni, hasSmoothswIni);
           await finalizeAndDownloadWithOverlay(src, tgt, zip, rootFolderName);
         } else if (tgt === "CFX") {
           await CFXOrganizer(coreFiles, mapping, rootFolderName, zip, log, conversionLogEntries);
@@ -1681,7 +1672,7 @@ function showMultipleFontsExplainer() {
           await finalizeAndDownloadWithOverlay(src, tgt, zip, rootFolderName);
         } else {
           // Fallback to Proffie organizer for any other case
-          await fat32ProffieOrganizer(coreFiles, mapping, rootFolderName, zip, log, conversionLogEntries);
+          await fat32ProffieOrganizer(coreFiles, mapping, rootFolderName, zip, log, conversionLogEntries, hasConfigIni, hasSmoothswIni);
           await finalizeAndDownloadWithOverlay(src, tgt, zip, rootFolderName);
           return;
         }
