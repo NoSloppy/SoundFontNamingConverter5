@@ -1478,6 +1478,16 @@ function showMultipleFontsExplainer() {
         addZipEntry(zip, file, zipPath);
         fileNameCounter[baseKey] = counter + 1;
       }
+      // Summary footnotes for Asteria pwroff2 rules
+      const asteriaTimesPwroff2Created = fileLogLines.filter(line => /In\/pwroff2\.wav/.test(line)).length;
+      if (asteriaTimesPwroff2Created >= 1) {
+        universalLog(logEl, '-- Asteria requires an "In/pwroff2" file for retractions when the blade is moving.', 'info');
+        universalLog(logEl, '-- So if only a single RETRACTION sound is received, it is made into both "In/poweroff" and "In/pwroff2" to fulfill the requirement.', 'info');
+      }
+      if (asteriaTimesPwroff2Created >= 2) {
+        universalLog(logEl, '-- If a second RETRACTION sound comes through, then it is used for "In/pwroff2" instead, replacing the first instance.', 'info');
+        universalLog(logEl, '-- Any additional RETRACTION sounds are then made as continued sequential "In/poweroff"s', 'info');
+      }
     }
 
       // === Audio normalization helper ===
