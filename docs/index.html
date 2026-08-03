@@ -16,10 +16,6 @@
     <div id="popupContent">
         <h2>Version Changelog</h2>
 
-        <p>[5.2.1]<br>
-          <strong>Changed</strong><br>
-          &bull; <code>force</code> and <code>quote</code> files are no longer remapped when converting to non-Proffie targets. They pass through as-is, since those boards don't use them — the files simply sit idle on the SD card.<br>
-        </p>
         <p>[5.2.0]<br>
           <strong>Added</strong><br>
           &bull; Added Asteria as a source and target board option, including its folder-based naming and smoothswing file handling.<br>
@@ -182,7 +178,7 @@
   <input type="hidden" name="sourceBoard" id="sourceBoard" value="CFX">
   <input type="hidden" name="targetBoard" id="targetBoard" value="CFX">
   <div class="main-content">
-    <h1>SoundFontNamingConverter MVP <span style="color:#fff;font-size:0.62em;"> Version 5.2.1 </span></h1>
+    <h1>SoundFontNamingConverter MVP <span style="color:#fff;font-size:0.62em;"> Version 5.2.0 </span></h1>
     <div class="top-flex-row">
       <!-- LEFT SIDE -->
       <div class="left-controls">
@@ -628,45 +624,12 @@
       return reverse;
     }
 
-    function getRelativeParts(file) {
-      const rel = file._original || file.webkitRelativePath || file.name || '';
-      return rel.split('/').filter(Boolean);
-    }
-
-    function getParentFolderName(file) {
-      const parts = getRelativeParts(file);
-      return parts.length > 1 ? parts[parts.length - 2] : '';
-    }
-
-    function getSourceMappingKey(file) {
-      const rawName = (file.name || '').toLowerCase();
-      const parent = getParentFolderName(file).toLowerCase();
-      const srcBoard = sourceBoardEl.value.toUpperCase();
-
-      if (srcBoard === 'ASTERIA') {
-        if (/^bankswitch\d*\.wav$/i.test(rawName)) return 'bankswitch.wav';
-        if (parent === 'blaster' && /^blaster\d*\.wav$/i.test(rawName)) return 'blaster.wav';
-        if (parent === 'clash' && /^clash\d+\.wav$/i.test(rawName)) return 'clash.wav';
-        if (parent === 'drag' && /^drag\d*\.wav$/i.test(rawName)) return 'drag.wav';
-        if (parent === 'hum' && /^humm?\d*\.wav$/i.test(rawName)) return 'humm.wav';
-        if (parent === 'hyswing' && /^swing\d+\.wav$/i.test(rawName)) return 'swing.wav';
-        if (parent === 'in' && rawName === 'pwroff2.wav') return 'pwroff2.wav';
-        if (parent === 'in' && /^poweroff\d*\.wav$/i.test(rawName)) return 'poweroff.wav';
-        if (parent === 'lockup' && /^lockup\d*\.wav$/i.test(rawName)) return 'lockup.wav';
-        if (parent === 'out' && /^poweron\d*\.wav$/i.test(rawName)) return 'poweron.wav';
-        if (parent === 'swing' && /^sw\d+_h\.wav$/i.test(rawName)) return 'swingh.wav';
-        if (parent === 'swing' && /^sw\d+_l\.wav$/i.test(rawName)) return 'swingl.wav';
-      }
-
-      return rawName.replace(/(?:\s*\(\d+\)|\d+)\.wav$/i, '.wav');
-    }
-
-    function getOrganizerMappingKey(file) {
-      if (/^\d+\.wav$/i.test(file.name)) {
-        const parent = getParentFolderName(file).toLowerCase();
-        if (parent) return `${parent}.wav`;
-      }
-      return getSourceMappingKey(file);
+    function normalizeAsteriaKey(name) {
+      const n = name.toLowerCase();
+      if (/^sw\d+_h\.wav$/i.test(n)) return 'swingh.wav';
+      if (/^sw\d+_l\.wav$/i.test(n)) return 'swingl.wav';
+      if (n === 'pwroff2.wav') return 'pwroff2.wav';
+      return n.replace(/(?:\s*\(\d+\)|\d+)\.wav$/i, '.wav');
     }
 
     // === Utility: single call to add to zip, conversionLogEntries, and log in one go ===
@@ -1076,13 +1039,14 @@ function showMultipleFontsExplainer() {
       for (const file of files) {
         if (file.name.startsWith('.') || !file.name.toLowerCase().endsWith('.wav')) continue;
         const nameLower = file.name.toLowerCase();
-        const relParts = getRelativeParts(file);
+        const relParts = file.webkitRelativePath.split('/');
         let baseNameForGroup;
         if (/^\d+\.wav$/i.test(file.name) && relParts.length > 1) {
-          baseNameForGroup = relParts[relParts.length - 2].toLowerCase() + '.wav';
+          baseNameForGroup = relParts[1].toLowerCase() + '.wav';
         } else {
-          baseNameForGroup = getSourceMappingKey(file);
+          baseNameForGroup = nameLower.replace(/(?:\s*\(\d+\)|\d+)\.wav$/i, '.wav');
         }
+        if (sourceBoardEl.value.toUpperCase() === 'ASTERIA') baseNameForGroup = normalizeAsteriaKey(nameLower);
         const mapped = applyMapping(baseNameForGroup);
         const base = mapped.replace(/\.wav$/, '');
         wavsByBase[base] = wavsByBase[base] || [];
@@ -1099,6 +1063,7 @@ function showMultipleFontsExplainer() {
           // Single file: strip Xeno (n) or trailing digits, map to Proffie, put in root
           let file = filesForBase[0];
           let cleanName = file.name.replace(/(?:\s*\(\d+\)|\d+)\.wav$/i, '.wav').toLowerCase();
+          if (sourceBoardEl.value.toUpperCase() === 'ASTERIA') cleanName = normalizeAsteriaKey(file.name.toLowerCase());
           let mappedName = applyMapping(cleanName);
           let zipPath = `${rootFolderName}/${mappedName}`;
           addZipEntry(zip, file, zipPath);
@@ -1106,6 +1071,7 @@ function showMultipleFontsExplainer() {
           // Multiples: put in subfolder, Proffie digits, mapped base name
           let file0 = filesForBase[0];
           let cleanName0 = file0.name.replace(/(?:\s*\(\d+\)|\d+)\.wav$/i, '.wav').toLowerCase();
+          if (sourceBoardEl.value.toUpperCase() === 'ASTERIA') cleanName0 = normalizeAsteriaKey(file0.name.toLowerCase());
           let mappedName0 = applyMapping(cleanName0);
           let mappedBase = mappedName0.replace(/\.wav$/, '');
           let subdir = `${rootFolderName}/${mappedBase}`;
@@ -1177,7 +1143,9 @@ function showMultipleFontsExplainer() {
           continue;
         }
         // Map Proffie filenames to CFX names using the mapping object
-        const keyForMapping = getOrganizerMappingKey(file);
+        const origLower = file.name.toLowerCase();
+        // Strip numeric suffixes for grouping (e.g. "boot01.wav" → "boot.wav")
+        const keyForMapping = origLower.replace(/(\d+)\.wav$/i, '.wav');
         // Apply mapping on stripped key, fallback to stripped key
         const mappedName = (typeof mapping === "function")
           ? mapping(keyForMapping)
@@ -1268,7 +1236,7 @@ function showMultipleFontsExplainer() {
       const filesByBase = {};
       for (const file of files) {
         if (!file.name.toLowerCase().endsWith('.wav') || file.name.startsWith('.')) continue;
-        const key = getOrganizerMappingKey(file);
+        const key = file.name.toLowerCase().replace(/(\d+)\.wav$/i, '.wav');
         const mapped = (typeof mapping === "function")
           ? mapping(key)
           : (mapping[key] || key);
@@ -1333,7 +1301,7 @@ function showMultipleFontsExplainer() {
       const fileNameCounter = {};
       for (const file of files) {
         if (!file.name.toLowerCase().endsWith('.wav') || file.name.startsWith('.')) continue;
-        const key = getOrganizerMappingKey(file);
+        const key = file.name.toLowerCase().replace(/(\d+)\.wav$/i, '.wav');
         const mapped = (typeof mapping === "function")
           ? mapping(key)
           : (mapping[key] || key);
@@ -1370,7 +1338,7 @@ function showMultipleFontsExplainer() {
         if (file.name.startsWith('.') || !file.name.toLowerCase().endsWith('.wav')) continue;
         // strip any numeric suffix or parenthesized number for mapping
         const nameLower = file.name.toLowerCase();
-        const cleanName = getOrganizerMappingKey(file);
+        const cleanName = nameLower.replace(/(?:\s*\(\d+\)|\d+)\.wav$/i, '.wav');
         // apply mapping to cleaned name
         let mappedWav;
         if (typeof mapping === 'function') {
@@ -1396,7 +1364,7 @@ function showMultipleFontsExplainer() {
       for (const file of files) {
         if (!file.name.toLowerCase().endsWith('.wav') || file.name.startsWith('.')) continue;
 
-        const keyForMapping = getOrganizerMappingKey(file);
+        const keyForMapping = normalizeAsteriaKey(file.name.toLowerCase());
         const mappedName = (typeof mapping === "function")
           ? mapping(keyForMapping)
           : (mapping[keyForMapping] || keyForMapping);

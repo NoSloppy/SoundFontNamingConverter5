@@ -11,6 +11,7 @@ in.wav,poweroff.wav
 lock.wav,lockup.wav
 out.wav,poweron.wav
 fastout.wav,poweronf.wav
+quote.wav,force.wav
 swingh.wav,hswing.wav
 swingl.wav,lswing.wav
 swng.wav,swing.wav
