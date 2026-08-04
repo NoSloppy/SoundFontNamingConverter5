@@ -3,6 +3,11 @@
 **Browser-Based Version**
 
 ---
+### [5.2.0]
+
+**Added**
+  - Added Asteria
+
 ### [5.1.2]
 
 **Fixed**
