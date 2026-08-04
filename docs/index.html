@@ -1162,19 +1162,6 @@ function showMultipleFontsExplainer() {
           addZipEntry(zip, file, `${rootFolderName}/In/${origLower}`);
           continue;
         }
-        // Strip numeric suffixes for grouping (e.g. "boot01.wav" → "boot.wav"),
-        // but preserve "pwroff2.wav" intact so it maps correctly.
-        const keyForMapping = origLower === 'pwroff2.wav'
-          ? origLower
-          : origLower.replace(/(\d+)\.wav$/i, '.wav');
-        // Apply mapping on stripped key, fallback to stripped key
-        const mappedName = (typeof mapping === "function")
-          ? mapping(keyForMapping)
-          : (mapping[keyForMapping] || keyForMapping);
-        // Derive baseKey (without extension) for duplicate counting
-        const baseKey = mappedName.replace(/\.wav$/i, '');
-        let counter = fileNameCounter[baseKey] || 1;
-        let outName;
 
         switch (baseKey) {
           case "poweroff": {
