@@ -812,7 +812,6 @@
           const srcToPro = await loadBidirectionalMapping(`PROFFIE_TO_${src}`, `${src}_TO_PROFFIE`);
           const proToTgt = await getMappingObj(`PROFFIE_TO_${tgt}`);
           mapping = key => {
-            const lower = key.toLowerCase();
             const lower = src === 'ASTERIA' ? normalizeAsteriaKey(key.toLowerCase()) : key.toLowerCase();
             const mid = srcToPro[lower] || lower;
             return proToTgt[mid.toLowerCase()] || mid;
