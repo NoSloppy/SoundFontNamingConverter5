@@ -813,6 +813,7 @@
           const proToTgt = await getMappingObj(`PROFFIE_TO_${tgt}`);
           mapping = key => {
             const lower = key.toLowerCase();
+            const lower = src === 'ASTERIA' ? normalizeAsteriaKey(key.toLowerCase()) : key.toLowerCase();
             const mid = srcToPro[lower] || lower;
             return proToTgt[mid.toLowerCase()] || mid;
           };
@@ -1130,7 +1131,12 @@ function showMultipleFontsExplainer() {
     // --- CFX Organizer ---
     function CFXOrganizer(files, mapping, rootFolderName, zip, log, conversionLogEntries) {
       const fileNameCounter = {};
-      for (const file of files) {
+      let pwroff2PseudoFile = null; // tracks file used as pseudo pwroff2 (from 2nd poweroff source)
+      let pwroff2IsReal = false;    // true once a real pwroff2.wav source file has been placed
+      // Tracks poweroff-numbered files (poweroff2.wav, poweroff3.wav, ...) written so far,
+      // so they can be resequenced when a real pwroff2.wav arrives late.
+      const poweroffNumberedFiles = []; // [{file, num}]
+            for (const file of files) {
         if (!file.name.toLowerCase().endsWith('.wav') || file.name.startsWith('.')) continue;
         // Numeric-only files: sequence by parent folder name
         if (/^\d+\.wav$/i.test(file.name)) {
@@ -1144,8 +1150,11 @@ function showMultipleFontsExplainer() {
         }
         // Map Proffie filenames to CFX names using the mapping object
         const origLower = file.name.toLowerCase();
-        // Strip numeric suffixes for grouping (e.g. "boot01.wav" → "boot.wav")
-        const keyForMapping = origLower.replace(/(\d+)\.wav$/i, '.wav');
+        // Strip numeric suffixes for grouping (e.g. "boot01.wav" → "boot.wav"),
+        // but preserve "pwroff2.wav" intact so it maps correctly.
+        const keyForMapping = origLower === 'pwroff2.wav'
+          ? origLower
+          : origLower.replace(/(\d+)\.wav$/i, '.wav');
         // Apply mapping on stripped key, fallback to stripped key
         const mappedName = (typeof mapping === "function")
           ? mapping(keyForMapping)
@@ -1156,9 +1165,39 @@ function showMultipleFontsExplainer() {
         let outName;
 
         switch (baseKey) {
-          case "poweroff":
+          case "poweroff": {
+            // Detect a real pwroff2.wav source file (e.g. from Asteria) arriving after
+            // a pseudo pwroff2 was already created from the 2nd poweroff source.
+            const isRealPwroff2 = origLower === 'pwroff2.wav';
+            if (isRealPwroff2 && !pwroff2IsReal && pwroff2PseudoFile !== null) {
+              // Full resequence: shift all poweroff-numbered entries up by 1,
+              // insert the pseudo-derived file as poweroff2, then place the real pwroff2.
+              // Shift existing poweroff2, poweroff3, ... upward in the zip.
+              for (let i = poweroffNumberedFiles.length - 1; i >= 0; i--) {
+                const entry = poweroffNumberedFiles[i];
+                const newNum = entry.num + 1;
+                const newName = `poweroff${newNum}.wav`;
+                zip.file(`${rootFolderName}/${newName}`, entry.file);
+                poweroffNumberedFiles[i].num = newNum;
+              }
+              // Add the pseudo-derived file as poweroff2
+              const reseqSrc = pwroff2PseudoFile._original || pwroff2PseudoFile.webkitRelativePath;
+              zip.file(`${rootFolderName}/poweroff2.wav`, pwroff2PseudoFile);
+              universalLog(logEl, `- Resequenced pseudo pwroff2 → <span style="color:#9f6">${rootFolderName}/poweroff2.wav</span>`);
+              conversionLogEntries.push(`Resequenced: ${reseqSrc} -> ${rootFolderName}/poweroff2.wav`);
+              poweroffNumberedFiles.unshift({ file: pwroff2PseudoFile, num: 2 });
+              // Place real pwroff2
+              zip.file(`${rootFolderName}/pwroff2.wav`, file);
+              const srcPathReal = file._original || file.webkitRelativePath;
+              universalLog(logEl, `Renamed: <span style="color:#fff">${srcPathReal}</span> <span style="color:#ff0">→</span> <span style="color:#9f6">${rootFolderName}/pwroff2.wav</span>`);
+              conversionLogEntries.push(`Renamed: ${srcPathReal} -> ${rootFolderName}/pwroff2.wav`);
+              pwroff2IsReal = true;
+              pwroff2PseudoFile = null;
+              fileNameCounter[baseKey] = counter + 1;
+              break;
+            }
             if (counter === 1) {
-              // First poweroff and also create pwroff2
+              // First poweroff and also create pseudo pwroff2
               addZipEntry(zip, file, `${rootFolderName}/poweroff.wav`);
                             // Remove addZipEntry for pwroff2.wav, and instead log as dashMsgCreate and use zip.file directly
               const dashMsgCreate = "- Also create pwroff2.wav";
@@ -1169,8 +1208,9 @@ function showMultipleFontsExplainer() {
               const srcPathCreate = file._original || file.webkitRelativePath;
               universalLog(logEl, `Created: <span style="color:#fff">${srcPathCreate}</span> <span style="color:#ff0">→</span> <span style="color:#9f6">${rootFolderName}/pwroff2.wav</span>`);
               conversionLogEntries.push(`Created: ${srcPathCreate} -> ${rootFolderName}/pwroff2.wav`);
-            } else if (counter === 2) {
-              // Updated pwroff2 replacement
+              if (!pwroff2IsReal) pwroff2PseudoFile = file;
+            } else if (counter === 2 && !pwroff2IsReal) {
+              // Updated pwroff2 replacement (still pseudo — from a poweroff source)
               const dashMsgUpdate = "- Updated pwroff2.wav";
               universalLog(logEl, dashMsgUpdate, "info");
               conversionLogEntries.push(dashMsgUpdate);
@@ -1178,9 +1218,12 @@ function showMultipleFontsExplainer() {
               const srcPathUpdate = file._original || file.webkitRelativePath;
               universalLog(logEl, `Renamed: <span style="color:#fff">${srcPathUpdate}</span> <span style="color:#ff0">→</span> <span style="color:#9f6">${rootFolderName}/pwroff2.wav</span>`);
               conversionLogEntries.push(`Renamed: ${srcPathUpdate} -> ${rootFolderName}/pwroff2.wav`);
+              pwroff2PseudoFile = file;
             } else {
-              const outName = `poweroff${counter - 1}.wav`;
+              const seqNum = counter - 1;
+              outName = `poweroff${seqNum}.wav`;
               addZipEntry(zip, file, `${rootFolderName}/${outName}`);
+              poweroffNumberedFiles.push({ file, num: seqNum });
             }
             fileNameCounter[baseKey] = counter + 1;
             break;
