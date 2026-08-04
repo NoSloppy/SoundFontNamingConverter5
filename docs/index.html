@@ -664,7 +664,7 @@
       const forward = await getMappingObj(revKey);
       const reverse = buildReverseMap(forward);
       const direct  = await getMappingObj(directKey);
-      return { ...reverse, ...direct };
+      return { ...direct, ...reverse };
     }
 
 
