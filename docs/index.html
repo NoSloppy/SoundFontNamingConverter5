@@ -626,8 +626,8 @@
 
     function normalizeAsteriaKey(name) {
       const n = name.toLowerCase();
-      if (/^sw\d+_h\.wav$/i.test(n)) return 'swingh.wav';
-      if (/^sw\d+_l\.wav$/i.test(n)) return 'swingl.wav';
+      if (/^sw_?\d+_h\.wav$/i.test(n)) return 'swingh.wav';
+      if (/^sw_?\d+_l\.wav$/i.test(n)) return 'swingl.wav';
       if (n === 'pwroff2.wav') return 'pwroff2.wav';
       return n.replace(/(?:\s*\(\d+\)|\d+)\.wav$/i, '.wav');
     }
