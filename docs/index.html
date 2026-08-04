@@ -1149,6 +1149,19 @@ function showMultipleFontsExplainer() {
         }
         // Map Proffie filenames to CFX names using the mapping object
         const origLower = file.name.toLowerCase();
+        const isAsteriaToCfx =
+          sourceBoardEl.value.toUpperCase() === 'ASTERIA' &&
+          targetBoardEl.value.toUpperCase() === 'CFX';
+        // Strip numeric suffixes for grouping (e.g. "boot01.wav" → "boot.wav"),
+        // but preserve "pwroff2.wav" intact so it maps correctly.
+        const keyForMapping = origLower === 'pwroff2.wav'
+          ? origLower
+          : origLower.replace(/(\d+)\.wav$/i, '.wav');
+        // Asteria->CFX retraction rules are identical: keep poweroff/pwroff2 names unchanged.
+        if (isAsteriaToCfx && (origLower === 'poweroff.wav' || origLower === 'pwroff2.wav')) {
+          addZipEntry(zip, file, `${rootFolderName}/In/${origLower}`);
+          continue;
+        }
         // Strip numeric suffixes for grouping (e.g. "boot01.wav" → "boot.wav"),
         // but preserve "pwroff2.wav" intact so it maps correctly.
         const keyForMapping = origLower === 'pwroff2.wav'
