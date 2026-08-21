@@ -1162,6 +1162,14 @@ function showMultipleFontsExplainer() {
           addZipEntry(zip, file, `${rootFolderName}/In/${origLower}`);
           continue;
         }
+        // Apply mapping on stripped key, fallback to stripped key
+        const mappedName = (typeof mapping === "function")
+          ? mapping(keyForMapping)
+          : (mapping[keyForMapping] || keyForMapping);
+        // Derive baseKey (without extension) for duplicate counting
+        const baseKey = mappedName.replace(/\.wav$/i, '');
+        let counter = fileNameCounter[baseKey] || 1;
+        let outName;
 
         switch (baseKey) {
           case "poweroff": {
