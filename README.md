@@ -7,7 +7,7 @@
 
 **Added**
 - Add missing CFX and XENO3 default font_config text files.
-- Adjust CFX flcash sound to now map to force sounds instead of clash.
+- Adjust CFX fclash sound to now map to force sounds instead of clash.
 
 ### [5.2.0]
 
