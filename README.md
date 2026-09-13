@@ -6,18 +6,18 @@
 ### [5.3.0]
 
 **Added**
-  - CFX: Adds missing default font_config.txt file.
-  - Xeno3: Adds missing default fontconfig.ini file.
+- Add missing CFX and XENO3 default font_config text files.
+- Adjust CFX flcash sound to now map to force sounds instead of clash.
 
 ### [5.2.0]
 
 **Added**
-  - Added Asteria
+- Added Asteria soundboard.
 
 ### [5.1.2]
 
 **Fixed**
-  - Restored missing config.ini and smoothsw.ini auto-addition for Proffie→Proffie conversions.
+-  Proffie conversions preserve existing config.ini and smoothsw.ini files if the font already had them instead of overwriting them with defaults.
 
 ### [5.1.1]
 
@@ -52,7 +52,7 @@
   Streamlined interface makes getting around and getting your results faster than ever. Output logs are bigger, color-coded, and much easier to read, and downloads are automatically triggered.
 
 - **All your favorite features are here:**
-  - **Board-specific renaming:** Handles Proffie, CFX, Asteria, Golden Harvest, Verso, and Xeno3, including special rules for CFX/Asteria retraction handling, Asteria folder-based naming and smoothswing layout, Xeno parenthesis, auto-inclusion of Verso blaster sound, Golden Harvest and Proffie settings files, and more.
+  - **Board-specific renaming:** Handles Proffie, CFX, Golden Harvest, Verso, and Xeno3, including special rules for CFX mixed numbered/unnumbered files, Xeno parenthesis, auto-inclusion of Verso blaster sound, Golden Harvest and Proffie settings files, and more.
   - **Multiple fonts at once:** Process tons of subfolders in one go, and it’s FAST!
   - **Proffie font optimization:** Instantly organizes fonts for best FAT32 SD card performance, automatically applied any time Proffieboard is the target. Includes correctly organizing file structure, wrangling loose files from root, etc...
   - **Auto-Audio Conversion:** Renaming automatically converts mis-formatted WAVs, converts MP3's, and strips metadata from audio files. Sweet!
