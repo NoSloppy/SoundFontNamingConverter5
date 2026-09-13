@@ -1152,11 +1152,12 @@ function showMultipleFontsExplainer() {
         const isAsteriaToCfx =
           sourceBoardEl.value.toUpperCase() === 'ASTERIA' &&
           targetBoardEl.value.toUpperCase() === 'CFX';
-        // Strip numeric suffixes for grouping (e.g. "boot01.wav" → "boot.wav"),
-        // but preserve "pwroff2.wav" intact so it maps correctly.
+        // Strip numeric suffixes for grouping (e.g. "boot01.wav" → "boot.wav",
+        // "swingl (2).wav" → "swingl.wav"), but preserve "pwroff2.wav" intact
+        // so it maps correctly.
         const keyForMapping = origLower === 'pwroff2.wav'
           ? origLower
-          : origLower.replace(/(\d+)\.wav$/i, '.wav');
+          : origLower.replace(/(?:\s*\(\d+\)|\d+)\.wav$/i, '.wav');
         // Asteria->CFX retraction rules are identical: keep poweroff/pwroff2 names unchanged.
         if (isAsteriaToCfx && (origLower === 'poweroff.wav' || origLower === 'pwroff2.wav')) {
           addZipEntry(zip, file, `${rootFolderName}/In/${origLower}`);
@@ -1287,7 +1288,7 @@ function showMultipleFontsExplainer() {
       const filesByBase = {};
       for (const file of files) {
         if (!file.name.toLowerCase().endsWith('.wav') || file.name.startsWith('.')) continue;
-        const key = file.name.toLowerCase().replace(/(\d+)\.wav$/i, '.wav');
+        const key = file.name.toLowerCase().replace(/(?:\s*\(\d+\)|\d+)\.wav$/i, '.wav');
         const mapped = (typeof mapping === "function")
           ? mapping(key)
           : (mapping[key] || key);
@@ -1352,7 +1353,7 @@ function showMultipleFontsExplainer() {
       const fileNameCounter = {};
       for (const file of files) {
         if (!file.name.toLowerCase().endsWith('.wav') || file.name.startsWith('.')) continue;
-        const key = file.name.toLowerCase().replace(/(\d+)\.wav$/i, '.wav');
+        const key = file.name.toLowerCase().replace(/(?:\s*\(\d+\)|\d+)\.wav$/i, '.wav');
         const mapped = (typeof mapping === "function")
           ? mapping(key)
           : (mapping[key] || key);
