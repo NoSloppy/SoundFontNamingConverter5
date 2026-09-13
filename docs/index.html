@@ -16,7 +16,12 @@
     <div id="popupContent">
         <h2>Version Changelog</h2>
 
-        <p>[5.2.0]<br>
+        <p>[5.3.0]<br>
+          <strong>Added</strong><br>
+          &bull; Add missing CFX and XENO3 default font_config text files.<br>
+          &bull; Adjust CFX flcash sound to now map to force sounds instead of clash.<br>
+        </p>
+         <p>[5.2.0]<br>
           <strong>Added</strong><br>
           &bull; Added Asteria soundboard.<br>
         </p>
@@ -733,6 +738,8 @@
       const remaining = [];
       let hasConfigIni = false;
       let hasSmoothswIni = false;
+      let hasFontConfigTxt = false;
+      let hasFontConfigIni = false;
       const root = rootFolderName;
       for (const file of files) {
         if (file.name.startsWith('.')) continue;
@@ -743,6 +750,8 @@
         if (!nameLower.endsWith('.wav')) {
           if (nameLower === 'config.ini')   hasConfigIni   = true;
           if (nameLower === 'smoothsw.ini') hasSmoothswIni = true;
+          if (nameLower === 'font_config.txt') hasFontConfigTxt = true;
+          if (nameLower === 'fontconfig.ini')  hasFontConfigIni = true;
           const zipPath = `${root}/${file.name}`;
           zip.file(zipPath, file);
          universalLog(logEl,`<span style="color:#99fff5">- Moved non-wav file:</span> <span style="color:#fff">${rel}</span> <span style="color:#ff0">→</span> <span style="color:#9f6">${zipPath}</span>`);
@@ -772,7 +781,7 @@
         // Otherwise, leave for board-specific processing
         remaining.push(file);
       }
-      return { remaining, hasConfigIni, hasSmoothswIni };
+      return { remaining, hasConfigIni, hasSmoothswIni, hasFontConfigTxt, hasFontConfigIni };
     }
 
     // Load CSV mapping as soon as both dropdowns are selected
@@ -1128,7 +1137,7 @@ function showMultipleFontsExplainer() {
     }
 
     // --- CFX Organizer ---
-    function CFXOrganizer(files, mapping, rootFolderName, zip, log, conversionLogEntries) {
+    async function CFXOrganizer(files, mapping, rootFolderName, zip, log, conversionLogEntries, hasFontConfigTxt = false) {
       const fileNameCounter = {};
       let pwroff2PseudoFile = null; // tracks file used as pseudo pwroff2 (from 2nd poweroff source)
       let pwroff2IsReal = false;    // true once a real pwroff2.wav source file has been placed
@@ -1280,6 +1289,22 @@ function showMultipleFontsExplainer() {
         universalLog(logEl, '-- If a second RETRACTION sound comes through, then it is used for "pwroff2" instead, replacing the first instance.', 'info');
         universalLog(logEl, '-- Any additional RETRACTION sounds are then made as continued sequential "poweroff"s', 'info');
       }
+
+      // Add missing default font_config.txt file
+      if (!hasFontConfigTxt) {
+        try {
+          const resp = await fetch('inis/font_config.txt');
+          if (resp.ok) {
+            const content = await resp.text();
+            zip.file(`${rootFolderName}/font_config.txt`, content);
+            universalLog(logEl, `Added default <span style="color:#9f6">font_config.txt</span>`, 'info');
+            conversionLogEntries.push('Added default font_config.txt');
+          }
+        } catch (err) {
+          console.error('Failed to load default font_config.txt:', err);
+          universalLog(logEl, 'Warning: Could not load default font_config.txt', 'warn');
+        }
+      }
     }
 
     // --- VERSO Organizer ---
@@ -1383,7 +1408,7 @@ function showMultipleFontsExplainer() {
     }
 
     // --- XENO3 Organizer ---
-    function XENO3Organizer(files, mapping, rootFolderName, zip, log, conversionLogEntries) {
+    async function XENO3Organizer(files, mapping, rootFolderName, zip, log, conversionLogEntries, hasFontConfigIni = false) {
       const fileNameCounter = {};
       for (const file of files) {
         // skip hidden and non-wav files
@@ -1407,6 +1432,22 @@ function showMultipleFontsExplainer() {
         const outName = `${base} (${count}).wav`;
         const zipPath = `${rootFolderName}/${outName}`;
         addZipEntry(zip, file, zipPath);
+      }
+
+      // Add missing default fontconfig.ini file
+      if (!hasFontConfigIni) {
+        try {
+          const resp = await fetch('inis/fontconfig.ini');
+          if (resp.ok) {
+            const content = await resp.text();
+            zip.file(`${rootFolderName}/fontconfig.ini`, content);
+            universalLog(logEl, `Added default <span style="color:#9f6">fontconfig.ini</span>`, 'info');
+            conversionLogEntries.push('Added default fontconfig.ini');
+          }
+        } catch (err) {
+          console.error('Failed to load default fontconfig.ini:', err);
+          universalLog(logEl, 'Warning: Could not load default fontconfig.ini', 'warn');
+        }
       }
     }
 
@@ -1715,7 +1756,7 @@ function showMultipleFontsExplainer() {
         });
 
         // Pre-process extras/tracks/non-wavs for this font
-        let { remaining: coreFiles, hasConfigIni, hasSmoothswIni } = await handleExtrasAndTracks(processedFiles, fontZip, log, conversionLogEntries, rootFolderName);
+        let { remaining: coreFiles, hasConfigIni, hasSmoothswIni, hasFontConfigTxt, hasFontConfigIni } = await handleExtrasAndTracks(processedFiles, fontZip, log, conversionLogEntries, rootFolderName);
 
         // Board-specific logic (same as before, but all use fontZip now)
         const src = sourceBoardEl.value.toUpperCase();
@@ -1724,7 +1765,7 @@ function showMultipleFontsExplainer() {
         if (src === "PROFFIE" && tgt === "PROFFIE") {
           await fat32ProffieOrganizer(coreFiles, mapping, rootFolderName, fontZip, log, conversionLogEntries, hasConfigIni, hasSmoothswIni);
         } else if (tgt === "CFX") {
-          await CFXOrganizer(coreFiles, mapping, rootFolderName, fontZip, log, conversionLogEntries);
+          await CFXOrganizer(coreFiles, mapping, rootFolderName, fontZip, log, conversionLogEntries, hasFontConfigTxt);
         } else if (tgt === "ASTERIA") {
           await ASTERIAOrganizer(coreFiles, mapping, rootFolderName, fontZip, log, conversionLogEntries);
         } else if (tgt === "VERSO") {
@@ -1732,7 +1773,7 @@ function showMultipleFontsExplainer() {
         } else if (tgt === "GOLDEN_HARVEST") {
           await GHOrganizer(coreFiles, mapping, rootFolderName, fontZip, log, conversionLogEntries);
         } else if (tgt === "XENO3") {
-          await XENO3Organizer(coreFiles, mapping, rootFolderName, fontZip, log, conversionLogEntries);
+          await XENO3Organizer(coreFiles, mapping, rootFolderName, fontZip, log, conversionLogEntries, hasFontConfigIni);
         } else if (tgt === "PROFFIE") {
           await fat32ProffieOrganizer(coreFiles, mapping, rootFolderName, fontZip, log, conversionLogEntries, hasConfigIni, hasSmoothswIni);
         }
@@ -1826,7 +1867,7 @@ function showMultipleFontsExplainer() {
         });
 
         // Pre-process extras, tracks, and non-wavs
-        let { remaining: coreFiles, hasConfigIni, hasSmoothswIni } = await handleExtrasAndTracks(files, zip, log, conversionLogEntries, rootFolderName);
+        let { remaining: coreFiles, hasConfigIni, hasSmoothswIni, hasFontConfigTxt, hasFontConfigIni } = await handleExtrasAndTracks(files, zip, log, conversionLogEntries, rootFolderName);
 
         // Board-specific logic
         const src = sourceBoardEl.value.toUpperCase();
@@ -1836,7 +1877,7 @@ function showMultipleFontsExplainer() {
           await fat32ProffieOrganizer(coreFiles, mapping, rootFolderName, zip, log, conversionLogEntries, hasConfigIni, hasSmoothswIni);
           await finalizeAndDownloadWithOverlay(src, tgt, zip, rootFolderName);
         } else if (tgt === "CFX") {
-          await CFXOrganizer(coreFiles, mapping, rootFolderName, zip, log, conversionLogEntries);
+          await CFXOrganizer(coreFiles, mapping, rootFolderName, zip, log, conversionLogEntries, hasFontConfigTxt);
           await finalizeAndDownloadWithOverlay(src, tgt, zip, rootFolderName);
         } else if (tgt === "ASTERIA") {
           await ASTERIAOrganizer(coreFiles, mapping, rootFolderName, zip, log, conversionLogEntries);
@@ -1848,7 +1889,7 @@ function showMultipleFontsExplainer() {
           await GHOrganizer(coreFiles, mapping, rootFolderName, zip, log, conversionLogEntries);
           await finalizeAndDownloadWithOverlay(src, tgt, zip, rootFolderName);
         } else if (tgt === "XENO3") {
-          await XENO3Organizer(coreFiles, mapping, rootFolderName, zip, log, conversionLogEntries);
+          await XENO3Organizer(coreFiles, mapping, rootFolderName, zip, log, conversionLogEntries, hasFontConfigIni);
           await finalizeAndDownloadWithOverlay(src, tgt, zip, rootFolderName);
         } else {
           // Fallback to Proffie organizer for any other case
