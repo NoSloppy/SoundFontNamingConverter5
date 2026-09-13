@@ -3,6 +3,12 @@
 **Browser-Based Version**
 
 ---
+### [5.3.0]
+
+**Added**
+  - CFX: Adds missing default font_config.txt file.
+  - Xeno3: Adds missing default fontconfig.ini file.
+
 ### [5.2.0]
 
 **Added**
